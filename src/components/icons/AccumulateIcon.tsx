@@ -1,0 +1,16 @@
+// Libraries
+import React from "react";
+
+interface AccumulateIconProps extends React.SVGProps<SVGSVGElement> { }
+
+export const AccumulateIcon: React.FC<AccumulateIconProps> = (
+    props
+) => {
+    return (
+        <svg width="23" height="19" viewBox="0 0 23 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2.09091 16.8889C1.51591 16.8889 1.02367 16.6822 0.614205 16.2688C0.204735 15.8553 0 15.3583 0 14.7778V2.11111C0 1.53056 0.204735 1.03356 0.614205 0.620139C1.02367 0.206713 1.51591 0 2.09091 0H18.8182C19.3932 0 19.8854 0.206713 20.2949 0.620139C20.7044 1.03356 20.9091 1.53056 20.9091 2.11111V8.44444H2.09091V14.7778H12.5455V16.8889H2.09091ZM2.09091 4.22222H18.8182V2.11111H2.09091V4.22222ZM17.7727 19V15.8333H14.6364V13.7222H17.7727V10.5556H19.8636V13.7222H23V15.8333H19.8636V19H17.7727Z" fill="white" />
+        </svg>
+
+
+    );
+};

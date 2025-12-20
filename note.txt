@@ -1,0 +1,2 @@
+useCreateLoyaltyCustomer src/hooks/useRegisterLoyaltyCustomer.ts 
+src/utils/handleError.ts
