@@ -20,7 +20,7 @@ export const useRemainPlays = (props?: UseRemainPlaysProps) => {
   });
 
   const remainPlays = useMemo(() => {
-    return 10;
+    // return 10;
     if (
       canAllocateData?.data?.remainPlays &&
       !isNaN(canAllocateData?.data?.remainPlays)

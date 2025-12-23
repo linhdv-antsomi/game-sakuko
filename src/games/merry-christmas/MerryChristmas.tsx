@@ -11,10 +11,10 @@ import {
   Results,
 } from "./screens";
 import styled from "styled-components";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion, Transition } from "motion/react";
 import {
   useAppConfig,
-  useNavigateWithSearch,
+  // useNavigateWithSearch,
   useUserInfo,
 } from "hooks";
 import { Scores } from "./screens/PlayGame/types";
@@ -34,6 +34,7 @@ import {
 import { EventName, events, openShareSheet } from "zmp-sdk/apis";
 import { Toast } from "@antscorp/ama-ui";
 import { bgChristmasMusic } from "./utils";
+import { useNavigate } from "react-router-dom";
 
 interface MerryChristmasProps {}
 
@@ -60,13 +61,14 @@ const screenVariants = {
   exit: { opacity: 0, scale: 1.05 },
 };
 
-const screenTransition = {
+const screenTransition: Transition = {
   duration: 0.3,
   ease: "easeInOut",
 };
 
 export const MerryChristmas: React.FC<MerryChristmasProps> = (props) => {
-  const navigate = useNavigateWithSearch();
+  const navigateReact = useNavigate();
+  const navigate = window?.zma?.navigate || navigateReact;
   const [christmasState, setMerryChristmasState] =
     useRecoilState(merryChristmasState);
   const resetMerryChristmasState = useResetRecoilState(merryChristmasState);
@@ -96,7 +98,7 @@ export const MerryChristmas: React.FC<MerryChristmasProps> = (props) => {
 
   // Variables
   const { shareTitle, shareDescription, shareThumbnail, sharePath } =
-    appSettings?.games?.merryChristmas || {};
+    appSettings?.games?.catchRewards || {};
   const { systemErrorMessages } = appSettings?.globals || {};
   const { currentScreen, isAllocatingCode } = christmasState;
   const { isOutOfVoucher } = state;
@@ -230,14 +232,18 @@ export const MerryChristmas: React.FC<MerryChristmasProps> = (props) => {
     }
   };
 
-  const onClickRedirectVoucherList = useCallback(() => {
-    navigate("/gift", {
-      newParams: {
-        tab: "redeemed",
-        voucherType: "voucher",
-      },
-    });
-  }, [navigate]);
+  const onClickRedirectVoucherList = () => {
+    if (typeof window?.zma?.navigateVoucherList === "function") {
+      window.zma.navigateVoucherList();
+    } else {
+      navigate("/gift", {
+        newParams: {
+          tab: "redeemed",
+          voucherType: "voucher",
+        },
+      });
+    }
+  };
 
   /**
    * Screen configuration with component mapping

@@ -1,40 +1,126 @@
 // Libraries
-import { useEffect, useState } from "react";
+import { TIER } from "constant";
+import { MD5 } from "crypto-js";
+import { isEmpty } from "lodash-es";
+import {
+  useGetLoyaltyCustomerDetail,
+  useGetUserInfo,
+  useGetUserSetting,
+} from "queries";
+import { useMemo } from "react";
+import { useDebounceValue } from "usehooks-ts";
 
+// Utils
+import { formatVietnamesePhoneNumber } from "utils";
+
+// Hooks
+import { useAppConfig } from "./useAppConfig";
+
+// Schemas
+import { useRecoilValue } from "recoil";
+import { Tier } from "schemas";
+import { authenticationState } from "state";
 
 interface UserInfoProps {}
 
-export const useUserInfo = () => {
-  const [userInfo, setUserInfo] = useState<any>(null);
-  const [isLoading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+export const useUserInfo = (props?: UserInfoProps) => {
+  const {
+    data: userInfoData,
+    isLoading: isUserInfoLoading,
+    isFetching,
+  } = useGetUserInfo({});
+  const { data: userSetting, isLoading: isUserSettingLoading } =
+    useGetUserSetting({});
+  const { user } = useRecoilValue(authenticationState);
+  const { appSettings } = useAppConfig();
 
-  useEffect(() => {
-    let cancelled = false;
+  // Variables
+  const phoneNumber = formatVietnamesePhoneNumber(user?.phone || "");
+  const { tierList = Object.values(TIER) } =
+    appSettings?.globals?.loyalty || {};
 
-    const run = () => {
-      try {
-        if (!window.zma?.getUserInfo) {
-          throw new Error("zma.getUserInfo not ready");
-        }
+  // Queries
+  const {
+    data: loyaltyCustomerDetailData,
+    isLoading: isLoadingGetLoyaltyCustomerDetail,
+    refetch: refetchLoyaltyCustomerDetail,
+    isRefetching,
+  } = useGetLoyaltyCustomerDetail({
+    args: {
+      customerId: phoneNumber,
+    },
+    options: {
+      enabled: !!phoneNumber,
+    },
+  });
 
-        const info = window.zma.getUserInfo();
-        if (!cancelled) setUserInfo(info);
-      } catch (e) {
-        if (!cancelled) setError(e as Error);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
+  // Memos
+  const loyaltyCustomer = useMemo(() => {
+    if (loyaltyCustomerDetailData?.code !== 200) {
+      return null;
+    }
+
+    return loyaltyCustomerDetailData?.data;
+  }, [loyaltyCustomerDetailData?.code, loyaltyCustomerDetailData?.data]);
+
+  const isRegistered = useMemo(() => {
+    if (
+      (((userSetting?.authSetting?.["scope.userInfo"] &&
+        userSetting?.authSetting?.["scope.userPhonenumber"]) ||
+        !!phoneNumber) &&
+        !isEmpty(loyaltyCustomer)) ||
+      process.env.NODE_ENV === "development"
+    ) {
+      return true;
+    }
+
+    return false;
+  }, [userSetting, phoneNumber, loyaltyCustomer]);
+
+  const [isRegisteredDebounced] = useDebounceValue(isRegistered, 500);
+  const isUserLoading =
+    isUserInfoLoading ||
+    isFetching ||
+    isLoadingGetLoyaltyCustomerDetail ||
+    isUserSettingLoading;
+
+  const memberTier: Tier = useMemo(() => {
+    const tier = tierList?.find(
+      (tier) => tier.key === loyaltyCustomer?.membershipLevel
+    );
+
+    return isUserLoading
+      ? TIER.MEMBER
+      : tier ||
+          TIER[`${loyaltyCustomer?.membershipLevel}`.toUpperCase()] ||
+          TIER.MEMBER;
+  }, [isUserLoading, loyaltyCustomer?.membershipLevel, tierList]);
+
+  // Next Member Tier
+  const nextMemberTier: Tier | undefined = useMemo(() => {
+    const currentTierIndex =
+      tierList?.findIndex((tier) => tier.key === memberTier.key) || 0;
+
+    return tierList?.[currentTierIndex + 1] as Tier;
+  }, [memberTier.key, tierList]);
+
+  const userInfo = useMemo(() => {
+    return {
+      ...userInfoData?.userInfo,
+      customerId: phoneNumber ? MD5(phoneNumber).toString() : "",
+      phoneNumber,
     };
+  }, [userInfoData?.userInfo, phoneNumber]);
 
-    run();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  console.log("🚀 ~ useUserInfo ~:", {userInfo, isLoading, error});
-
-  return { userInfo, isLoading, error };
+  return {
+    userInfo,
+    loyaltyCustomer,
+    isRegistered: isRegisteredDebounced,
+    userSetting,
+    memberTier,
+    nextMemberTier,
+    isLoading: isUserLoading,
+    isLoyaltyCustomerRefetching: isRefetching,
+    refetchLoyaltyCustomerDetail,
+  };
 };

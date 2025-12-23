@@ -80,7 +80,12 @@ export const useRequestZaloPermissions = (
    * Also emits `allow_phone` CDP event and updates local config.
    */
   const handleRequestPhonePermission = useCallback(async () => {
-    getPhoneNumber({
+    const requestPhone =
+      typeof window?.zma?.getPhoneNumber === "function"
+        ? window.zma.getPhoneNumber
+        : getPhoneNumber;
+
+    requestPhone({
       async success() {
         if (!isPhoneNumberAllowed) {
           callCdpEvent({
@@ -144,8 +149,13 @@ export const useRequestZaloPermissions = (
    * 4. Request phone number
    */
   const requestZaloPermissions = useCallback(async () => {
-    onFinish?.({ userInfo: {} });
-    const { userInfo: requestedUserInfo } = await getUserInfo({
+    // onFinish?.({ userInfo: {} });
+    if (window?.zma?.PREVIEW_MODE) {
+      onFinish?.({ userInfo: {} });
+      return;
+    }
+
+    const { userInfo: requestedUserInfo } = await window?.zma?.getUserInfoZalo({
       autoRequestPermission: true,
       fail(error) {
         setState((draft) => {

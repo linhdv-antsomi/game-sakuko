@@ -34,7 +34,7 @@ export const useAllocateVoucherChristmas = (props: AllocateVoucherProps) => {
 
   return useMutation({
     mutationFn: (args: AllocateVoucherCardFlipArgs) =>
-      merryChristmasServices.allocateVoucher(args),
+      window?.zma?.allocateVoucher(args),
     onSettled() {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEY.VOUCHER_LIST],
@@ -58,7 +58,7 @@ export const useShareGameChristmas = (props: ShareGameProps) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (args: ShareGameArgs) => merryChristmasServices.shareGame(args),
+    mutationFn: (args: ShareGameArgs) => window?.zma?.shareGame(args),
     onSettled: (data, error) => {
       if (!error) {
         queryClient.invalidateQueries({
@@ -78,7 +78,7 @@ export const useShareGameChristmas = (props: ShareGameProps) => {
 export const useCheckCanShareGameChristmas = () => {
   return useQuery({
     queryKey: [QUERY_KEY.CHECK_CAN_SHARE_GAME_CHRISTMAS],
-    queryFn: () => merryChristmasServices.checkCanShareGame(),
+    queryFn: () => window?.zma?.checkCanShareGame(),
   });
 };
 
@@ -94,7 +94,7 @@ export const useCheckCanAllocateVoucherChristmas = (
 ) => {
   return useQuery({
     queryKey: [QUERY_KEY.CHECK_CAN_ALLOCATE_VOUCHER_CHRISTMAS],
-    queryFn: () => merryChristmasServices.checkCanAllocateVoucher({}),
+    queryFn: () => window?.zma?.checkCanAllocateVoucher(), // merryChristmasServices.checkCanAllocateVoucher({}),
     ...props.options,
   });
 };
@@ -109,7 +109,7 @@ interface GetLeaderBoardProps {
 export const useGetLeaderBoardChristmas = (props: GetLeaderBoardProps) => {
   return useQuery({
     queryKey: [QUERY_KEY.GET_LEADER_BOARD_CHRISTMAS, props.args],
-    queryFn: () => merryChristmasServices.getLeaderBoard(props.args),
+    queryFn: () => window?.zma?.getLeaderboard(props.args), // merryChristmasServices.getLeaderBoard(props.args),
     ...props.options,
   });
 };

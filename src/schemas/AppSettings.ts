@@ -87,6 +87,7 @@ const gamesSchema = z.object({
   stampCollector: stampCollector,
   cardFlip: cardFlipSchema,
   merryChristmas: merryChristmasSchema,
+  catchRewards: merryChristmasSchema,
 });
 
 const schemeCategorySchema = z.object({

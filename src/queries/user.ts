@@ -91,7 +91,10 @@ export const useCheckUserCanAllocateV2 = ({
 export const useGetUserInfo = ({ options }: UseGetUserInfoProps) => {
   return useQuery({
     queryKey: [QUERY_KEY.GET_USER_INFO],
-    queryFn: () => getUserInfo(),
+    queryFn: () =>
+      typeof window?.zma?.getUserInfoZalo === "function"
+        ? window?.zma?.getUserInfoZalo()
+        : getUserInfo(),
     ...options,
   });
 };
@@ -99,7 +102,10 @@ export const useGetUserInfo = ({ options }: UseGetUserInfoProps) => {
 export const useGetUserSetting = ({ options }: UseGetUserSettingProps) => {
   return useQuery({
     queryKey: [QUERY_KEY.GET_USER_SETTING],
-    queryFn: () => getSetting(),
+    queryFn: () =>
+      typeof window?.zma?.getSettingZalo === "function"
+        ? window?.zma?.getSettingZalo()
+        : getSetting(),
     ...options,
   });
 };

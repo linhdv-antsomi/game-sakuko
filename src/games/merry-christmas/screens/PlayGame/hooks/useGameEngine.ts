@@ -67,6 +67,7 @@ export default function useGameEngine(
   );
   const [isGameOver, setIsGameOver] = useState<boolean>(false);
   const restartRef = useRef<(() => void) | null>(null);
+  const engineIdRef = useRef(0);
   // const totalScore = useMemo(() => {
   //   return getTotalScore(scores, collections);
   // }, [scores, JSON.stringify(collections)]);
@@ -78,6 +79,9 @@ export default function useGameEngine(
   }, [scoreTemplate]);
 
   useEffect(() => {
+    engineIdRef.current += 1;
+    const myEngineId = engineIdRef.current;
+
     const gameEl = gameRef.current;
     const boxEl = boxRef.current;
 
@@ -404,7 +408,7 @@ export default function useGameEngine(
      * Main game loop tick function
      */
     const tick = (timestamp: number): void => {
-      if (!isRunning) {
+      if (!isRunning || engineIdRef.current !== myEngineId) {
         return;
       }
 
@@ -652,6 +656,7 @@ export default function useGameEngine(
     window.addEventListener("resize", handleResize);
 
     return () => {
+      engineIdRef.current += 1;
       isRunning = false;
       if (animationId) {
         cancelAnimationFrame(animationId);

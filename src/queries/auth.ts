@@ -8,7 +8,7 @@ export interface UseLoginProps {
 
 export const useLogin = (props: UseLoginProps) => {
   return useMutation({
-    mutationFn: authServices.login,
+    mutationFn: typeof window?.zma?.login === "function" ? window?.zma?.login : authServices.login, // authServices.login,
     ...props.options,
   });
 };

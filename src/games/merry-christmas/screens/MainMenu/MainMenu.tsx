@@ -180,47 +180,49 @@ export const MainMenu: React.FC<MainMenuProps> = memo(({ onShare }) => {
   const { userInfo } = useUserInfo();
   const { remainPlays, isCanPlay } = useRemainPlays();
   const navigate = useNavigateWithSearch();
-  const { appSettings, gameValidation } = useAppConfig();
+  const { appSettings, gameValidation, isCatchRewardsValid } = useAppConfig();
   const [isRequestedZalo, setIsRequestedZalo] = useState(false);
   const [termAndConditionVisible, toggleTermAndConditionVisible] =
     useToggle(false);
   const [requestTermVisible, toggleRequestTermVisible] = useToggle(false);
-  // const { requestZaloPermissions } = useRequestZaloPermissions({
-  //   cdpEventConfig: {
-  //     pageCate: EVENT_CONFIG.MERRY_CHRISTMAS,
-  //   },
-  //   onFail({ step, message, error }) {
-  //     if (["flowOA", "allowPhone"].includes(step)) {
-  //       setState((draft) => {
-  //         draft.requestPermissionVisible = true;
-  //       });
-  //     }
+  const { requestZaloPermissions } = useRequestZaloPermissions({
+    cdpEventConfig: {
+      pageCate: EVENT_CONFIG.MERRY_CHRISTMAS,
+    },
+    onFail({ step, message, error }) {
+      console.log("request permission fail");
+      if (["flowOA", "allowPhone"].includes(step)) {
+        setState((draft) => {
+          draft.requestPermissionVisible = true;
+        });
+      }
 
-  //     // If state code equal -203 it means user request so many times, then show limit Request message
-  //     if (error.code === -203) {
-  //       setState((draft) => {
-  //         draft.limitRequestVisible = true;
-  //         draft.requestPermissionVisible = false;
-  //       });
-  //     }
+      // If state code equal -203 it means user request so many times, then show limit Request message
+      if (error.code === -203) {
+        setState((draft) => {
+          draft.limitRequestVisible = true;
+          draft.requestPermissionVisible = false;
+        });
+      }
 
-  //     setMerryChristmas((prev) => ({ ...prev, isGameLoading: false }));
-  //   },
-  //   onFinish() {
-  //     console.log("request permission success");
-  //     setState((draft) => {
-  //       draft.limitRequestVisible = false;
-  //       draft.requestPermissionVisible = false;
-  //     });
-  //     setIsRequestedZalo(true);
+      setMerryChristmas((prev) => ({ ...prev, isGameLoading: false }));
+    },
+    onFinish() {
+      console.log("request permission success");
+      setState((draft) => {
+        draft.limitRequestVisible = false;
+        draft.requestPermissionVisible = false;
+      });
+      setIsRequestedZalo(true);
 
-  //     setMerryChristmas((prev) => ({
-  //       ...prev,
-  //       currentScreen: SCREEN_KEYS.INSTRUCTIONS,
-  //       isGameLoading: false,
-  //     }));
-  //   },
-  // });
+      setMerryChristmas((prev) => ({
+        ...prev,
+        currentScreen: SCREEN_KEYS.INSTRUCTIONS,
+        isGameLoading: false,
+      }));
+    },
+  });
+
   useViewPage({
     pageType: PAGE_TYPE.HOME,
     pageCate: EVENT_CONFIG.MERRY_CHRISTMAS,
@@ -258,42 +260,6 @@ export const MainMenu: React.FC<MainMenuProps> = memo(({ onShare }) => {
   }, [navigate]);
 
   // Handlers
-  const onSuccess = useCallback(() => {
-    console.log("request permission success");
-    setState((draft) => {
-      draft.limitRequestVisible = false;
-      draft.requestPermissionVisible = false;
-    });
-    setIsRequestedZalo(true);
-
-    setMerryChristmas((prev) => ({
-      ...prev,
-      currentScreen: SCREEN_KEYS.INSTRUCTIONS,
-      isGameLoading: false,
-    }));
-  }, [setIsRequestedZalo, setMerryChristmas]);
-  const onFail = useCallback(
-    ({ step, message, error }) => {
-      console.log("request permission failed", { step, message, error });
-      if (["flowOA", "allowPhone"].includes(step)) {
-        setState((draft) => {
-          draft.requestPermissionVisible = true;
-        });
-      }
-
-      // If state code equal -203 it means user request so many times, then show limit Request message
-      if (error.code === -203) {
-        setState((draft) => {
-          draft.limitRequestVisible = true;
-          draft.requestPermissionVisible = false;
-        });
-      }
-
-      setMerryChristmas((prev) => ({ ...prev, isGameLoading: false }));
-    },
-    [setMerryChristmas]
-  );
-
   const onClickPlayGame = useCallback(() => {
     if (disablePlay) return;
 
@@ -304,15 +270,12 @@ export const MainMenu: React.FC<MainMenuProps> = memo(({ onShare }) => {
 
     setMerryChristmas((prev) => ({ ...prev, isGameLoading: true }));
 
-    if (typeof window?.zma?.requestPermissions === "function") {
-      window?.zma?.requestPermissions(onSuccess, onFail);
-    }
-    // requestZaloPermissions();
+    requestZaloPermissions();
   }, [
     disablePlay,
     isAcceptRule,
     setMerryChristmas,
-    // requestZaloPermissions,
+    requestZaloPermissions,
     toggleRequestTermVisible,
   ]);
 
@@ -569,7 +532,7 @@ export const MainMenu: React.FC<MainMenuProps> = memo(({ onShare }) => {
       {/* End Game Notification */}
       <SystemNotificationModal
         showCloseButton={false}
-        visible={gameValidation && !gameValidation?.merryChristmas?.valid}
+        visible={!isCatchRewardsValid}
         title="Thông báo"
         description={
           systemErrorMessages?.merryChristmasEnd ||

@@ -31,7 +31,6 @@ window.Game = {
             </BrowserRouter>
           </React.StrictMode>
         </ZmpApp>
-        ,
       </RecoilRoot>
     )
   }

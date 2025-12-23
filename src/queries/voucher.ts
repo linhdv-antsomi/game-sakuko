@@ -139,7 +139,7 @@ export const useGetVoucherList = ({
 export const useGetAppSettings = ({ options }: UseGetAppSettingsProps = {}) => {
   return useQuery({
     queryKey: [QUERY_KEY.APP_SETTINGS],
-    queryFn: voucherServices.getAppSettings,
+    queryFn: window?.zma?.getAppSettings,
     ...options,
   });
 };
