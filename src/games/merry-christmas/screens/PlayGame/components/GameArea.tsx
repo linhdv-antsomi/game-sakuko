@@ -2,10 +2,8 @@ import React from "react";
 import styled from "styled-components";
 
 // Assets
-import giftBoxImage from "assets/images/merry-christmas/gift-box.webp";
-import gameBg from "assets/images/merry-christmas/background-2.webp";
-import gameBgBottom from "assets/images/merry-christmas/game-bottom.webp";
-import { GameSnowfall } from "games/merry-christmas/components";
+import giftBoxImage from "assets/images/catch-rewards/box.webp";
+import gameBg from "assets/images/catch-rewards/background-2.webp";
 
 interface GameAreaProps {
   gameRef: React.RefObject<HTMLDivElement>;
@@ -43,7 +41,7 @@ const GameAreaWrapper = styled.div`
 
   #box {
     position: absolute;
-    bottom: 10vh;
+    bottom: 4vh;
     width: var(--box-width);
     height: var(--box-height);
     /* Removed left property - using transform for movement */
@@ -79,16 +77,10 @@ export const GameArea: React.FC<GameAreaProps> = React.memo(
   ({ gameRef, boxRef }) => {
     return (
       <GameAreaWrapper ref={gameRef}>
-        <GameSnowfall id="snowfall" className="absolute top-0 left-0 w-full h-full z-[1]" />
-
         <div id="box" ref={boxRef}>
           <div className="box-graphic">
             <img src={giftBoxImage} alt="Gift Box" className="box-image" />
           </div>
-        </div>
-
-        <div className="bg-bottom absolute bottom-0 w-full z-0">
-          <img src={gameBgBottom} alt="" />
         </div>
       </GameAreaWrapper>
     );

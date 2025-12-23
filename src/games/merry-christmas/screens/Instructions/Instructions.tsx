@@ -2,12 +2,8 @@ import React, { memo, useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 import { motion } from "motion/react";
 
-import backgroundImage from "assets/images/merry-christmas/background.webp";
-import giftImage from "assets/images/merry-christmas/gift.webp";
-import bottomBackgroundImage from "assets/images/merry-christmas/bottom-background.webp";
-import intrucstionsImage from "assets/images/merry-christmas/instructions.webp";
-import btnStartImage from "assets/images/merry-christmas/btn-start.webp";
 import {
+  useAppConfig,
   useNavigateWithSearch,
   useRegisterLoyaltyCustomer,
   useViewPage,
@@ -17,43 +13,132 @@ import { SCREEN_KEYS } from "../../constants";
 import { useRecoilState } from "recoil";
 import { merryChristmasState } from "../../state";
 import { EVENT_CONFIG, PAGE_TYPE } from "constant";
-import { Snowfall } from "../../components";
-import instructionsGif from "assets/images/merry-christmas/instructions-gif.webp";
-import instructionsFrame from "assets/images/merry-christmas/instructions-frame.webp";
+import { Image } from "@antscorp/ama-ui";
+
+// Assets
+import bgImg from "assets/images/catch-rewards/background-2.webp";
+import instructionImg from "assets/images/catch-rewards/instruction.webp";
+import itemBgImg from "assets/images/catch-rewards/bg-2.webp";
+import { CollectionItem } from "schemas";
+import { COLLECTTIONS } from "../PlayGame/constants";
+import { ButtonBox } from "../MainMenu";
 
 interface InstructionsProps {}
 
 const Wrapper = styled(motion.div)`
-  background: url(${backgroundImage}) no-repeat top center;
+  background: url(${bgImg}) no-repeat top center;
   background-size: cover;
   height: 100vh;
   width: 100%;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: center;
   justify-content: flex-end;
   position: relative;
 `;
 
-const BtnGift = styled(motion.button)`
-  background: url(${giftImage}) no-repeat center / contain;
-  aspect-ratio: 73/82;
-  width: 6%;
+const InstructionsWrapper = styled(motion.div)`
+  background-color: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0px 4px 4px 0px #d97b9640, 0px 0px 1px 1px #d2d2d233 inset;
+  padding: 30px 22px;
+  margin-bottom: 6vh;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  width: 88%;
 `;
 
-const InstructionsImg = styled(motion.img)``;
-
-const BtnStart = styled(motion.button)`
-  background: url(${btnStartImage}) no-repeat center / contain;
-  aspect-ratio: 767/125;
-  width: 55%;
+const Title = styled.div`
+  font-weight: 700;
+  font-size: clamp(20px, 6vw, 28px);
+  line-height: 22px;
+  color: #ed5691;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0px;
+  margin-bottom: 2vh;
+`;
+const Text = styled.div`
+  font-weight: 600;
+  font-size: clamp(12px, 3.6vw, 16px);
+  line-height: 18px;
+  text-align: justify;
+  letter-spacing: 0px;
+  color: #243771;
+`;
+const TextRed = styled.div`
+  font-weight: 500;
+  font-size: clamp(10px, 3vw, 14px);
+  line-height: 16px;
+  text-align: justify;
+  color: #de001e;
+`;
+const ItemsWrapper = styled.div`
+  background: url(${itemBgImg}) no-repeat center / contain;
+  display: grid;
+  /* flex-wrap: wrap; */
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  padding: 23px 15px;
+  width: 100%;
+  margin-top: 12px;
+  margin-bottom: 20px;
 `;
 
-const InstructionsFrame = styled(motion.div)`
-  background: url(${instructionsFrame}) no-repeat center / contain;
-  overflow: hidden;
-  aspect-ratio: 1092/536;
+const Item = styled.div<{ $type: CollectionItem["type"] }>`
+  background: ${({ $type }) =>
+    $type === "plus-time"
+      ? "#E3FFEB"
+      : $type === "stun"
+      ? "#FDFFC8"
+      : $type === "minus-score"
+      ? "#FFC8C9"
+      : "#ffffff"};
+  border-radius: 10px;
+  box-shadow: 0px 4px 4px 0px #d97b9640, 0px 0px 1px 1px #d2d2d233 inset;
+  padding: 6px;
+  aspect-ratio: 1/1;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+
+  .img {
+    max-height: 70%;
+  }
+  .label {
+    max-height: 27%;
+    font-weight: 600;
+    font-size: clamp(6px, 2vw, 10px);
+    text-align: justify;
+    color: ${({ $type }) =>
+      $type === "plus-time"
+        ? "#0AC000"
+        : $type === "stun"
+        ? "#A8B400"
+        : $type === "minus-score"
+        ? "#FF2D31"
+        : "#0AC000"};
+  }
+`;
+const BtnPlay = styled(ButtonBox)`
+  width: 60vw;
+  background-color: #f05a92;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: clamp(20px, 6vw, 28px);
+  line-height: 22px;
+
+  &.disabled {
+    pointer-events: none;
+    filter: grayscale(1);
+    transform: none;
+  }
 `;
 
 export const Instructions: React.FC<InstructionsProps> = memo(() => {
@@ -61,6 +146,11 @@ export const Instructions: React.FC<InstructionsProps> = memo(() => {
   const [{ isGameLoading }, setMerryChristmas] =
     useRecoilState(merryChristmasState);
   useRegisterLoyaltyCustomer();
+  const { appSettings } = useAppConfig();
+
+  const collectionItems: CollectionItem[] =
+    appSettings?.games?.merryChristmas?.collectionItems ||
+    (COLLECTTIONS as CollectionItem[]);
 
   // Hooks
   const { remainPlays, isLoading: remainPlaysLoading } = useRemainPlays();
@@ -106,52 +196,53 @@ export const Instructions: React.FC<InstructionsProps> = memo(() => {
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
       >
-        <Snowfall className="z-30" />
-        <BtnGift
-          className="absolute z-30 right-[4%] top-24"
+        <InstructionsWrapper
           initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          whileTap={{ filter: "brightness(0.7)", y: 2 }}
-          exit={{ opacity: 0 }}
-          onClick={onClickRedirectVoucherList}
-        />
-
-        <div className="flex flex-col justify-end items-center w-full h-full z-20 mb-[8%]">
-          <div className="relative h-[70%]">
-            <InstructionsImg
-              className="h-full"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1, transition: { delay: 0.6 } }}
-              exit={{ opacity: 0 }}
-              src={intrucstionsImage}
-            />
-
-            <InstructionsFrame
-              className="absolute top-[31%] left-[51%] !-translate-x-1/2 w-[73%] z-10"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1, transition: { delay: 0.6 } }}
-            />
-            <motion.div
-              className="absolute top-[31%] left-[51%] !-translate-x-1/2 w-[71%] rounded-[10px] overflow-hidden"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1, transition: { delay: 0.6 } }}
-            >
-              <motion.img src={instructionsGif} />
-            </motion.div>
-          </div>
-          <BtnStart
-            className="z-30"
-            initial={{ y: "-50%", opacity: 0 }}
-            animate={{ y: "-50%", opacity: 1, transition: { delay: 1 } }}
+          animate={{ opacity: 1, transition: { delay: 0.6 } }}
+        >
+          <Title>Cách thức tham gia</Title>
+          <Text>
+            1. Điều khiển giỏ hàng sang trái/phải để hứng vật phẩm may mắn.
+          </Text>
+          <Image
+            src={instructionImg}
+            style={{
+              marginBottom: "2vh",
+            }}
+          />
+          <Text>2. Hứng càng nhiều trúng càng cao, giải thường càng lớn.</Text>
+          <TextRed>
+            Lưu ý: Tránh "Boom" để không bị trừ điểm, tránh "đá tảng" để không
+            bị "choáng", hứng đồng hồ sẽ nhận thêm thời gian chơi!
+          </TextRed>
+          <ItemsWrapper>
+            {collectionItems?.map((item) => {
+              const label =
+                item.type === "stun"
+                  ? "Choáng"
+                  : item.type === "minus-score"
+                  ? `-${item.value} điểm`
+                  : `+${item.value}${
+                      item.type === "plus-time" ? "s" : " điểm"
+                    }`;
+              return (
+                <Item key={item.id} $type={item.type}>
+                  <img className="img" src={item.itemImage} />
+                  <div className="label">{label}</div>
+                </Item>
+              );
+            })}
+          </ItemsWrapper>
+          <BtnPlay
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1, transition: { delay: 1 } }}
             exit={{ opacity: 0 }}
             whileTap={{ filter: "brightness(0.7)", y: 2 }}
             onClick={onStart}
-          />
-        </div>
-
-        <div className="bottom-container absolute bottom-0 w-full h-1/4">
-          <img src={bottomBackgroundImage} alt="" className="bottom-gift" />
-        </div>
+          >
+            Bắt đầu ngay
+          </BtnPlay>
+        </InstructionsWrapper>
       </Wrapper>
     </>
   );

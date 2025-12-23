@@ -5,13 +5,14 @@ import React, { memo, useCallback, useEffect, useRef, useState } from "react";
 import { useRecoilState } from "recoil";
 import styled from "styled-components";
 import { merryChristmasState } from "../../state";
-import { CountdownPopup, GameArea, Scoreboard, Timeboard } from "./components";
+import { Controls, CountdownPopup, GameArea } from "./components";
 import { GAME_CONFIG, COLLECTTIONS } from "./constants";
 import useGameEngine from "./hooks/useGameEngine";
 import { Scores } from "./types";
 import countDownSound from "assets/sound-effects/countdown.mp3";
 import { ChristmasItem } from "schemas";
 import { SCREEN_KEYS } from "../../constants";
+import { useRemainPlays } from "games/merry-christmas/hooks";
 
 interface PlayGameProps {
   onGameOver: (scores: Scores, totalScore: number) => void;
@@ -20,8 +21,8 @@ interface PlayGameProps {
 const PlayGameWrapper = styled(motion.div)`
   --game-width: min(420px, 90vw);
   --game-height: 100vh;
-  --box-width: 120px;
-  --box-height: 120px;
+  --box-width: 130px;
+  --box-height: 67px;
   --item-size: 68px;
 
   position: relative;
@@ -48,6 +49,10 @@ const PlayGameWrapper = styled(motion.div)`
   }
 `;
 
+const ControlWrapper = styled(motion.div)`
+  margin-top: 40px;
+`;
+
 export const PlayGame: React.FC<PlayGameProps> = memo(({ onGameOver }) => {
   const { userInfo } = useUserInfo();
   const gameRef = useRef<HTMLDivElement>(null);
@@ -59,6 +64,7 @@ export const PlayGame: React.FC<PlayGameProps> = memo(({ onGameOver }) => {
     volume: 1,
     html5: true,
   });
+  const { remainPlays } = useRemainPlays();
 
   useViewPage({
     pageType: PAGE_TYPE.PLAY_GAME,
@@ -68,11 +74,11 @@ export const PlayGame: React.FC<PlayGameProps> = memo(({ onGameOver }) => {
   // Get collectionItems from app settings
   const { appSettings } = useAppConfig();
   const collectionItems: ChristmasItem[] =
-    appSettings?.games?.merryChristmas?.collectionItems ||
+    appSettings?.games?.catchRewards?.collectionItems ||
     (COLLECTTIONS as ChristmasItem[]);
   const {
     timeDelayShowResult = APP_CONFIG.GAMES.MERRY_CHRISTMAS.TIME_DELAY_SHOW_GIFT,
-  } = appSettings?.games?.merryChristmas || {};
+  } = appSettings?.games?.catchRewards || {};
 
   const handleCountdownComplete = useCallback(() => {
     setShowCountdown(false);
@@ -140,15 +146,15 @@ export const PlayGame: React.FC<PlayGameProps> = memo(({ onGameOver }) => {
     >
       <GameArea gameRef={gameRef} boxRef={boxRef} />
 
-      <div className="overlay-ui mt-16 flex gap-2 align-baseline">
-        <Timeboard className="time-board" timeLeft={timeLeft} />
-        <Scoreboard
-          className="score-board mt-[3px]"
+      <ControlWrapper className="overlay-ui">
+        <Controls
+          timeLeft={timeLeft}
           scores={scores}
           collections={collectionItems || []}
           totalScore={totalScore}
+          remainPlays={remainPlays}
         />
-      </div>
+      </ControlWrapper>
 
       <AnimatePresence>
         {showCountdown && (

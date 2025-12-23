@@ -2,17 +2,13 @@ import React, { memo, useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 import { motion } from "motion/react";
 
-import backgroundImage from "assets/images/merry-christmas/background.webp";
-import christmasImage from "assets/images/merry-christmas/christmas.webp";
-import bottomBackgroundImage from "assets/images/merry-christmas/bottom-background.webp";
-import btnPlayImage from "assets/images/merry-christmas/btn-play.webp";
-import btnBXHImage from "assets/images/merry-christmas/btn-bxh-2.webp";
-import btnShareImage from "assets/images/merry-christmas/btn-share.webp";
-import btnAddTurnImage from "assets/images/merry-christmas/btn-add-turn.webp";
-import giftImage from "assets/images/merry-christmas/gift.webp";
-import snowImage from "assets/images/merry-christmas/snow.webp";
-import { DotBackground } from "../../styled";
-import { Button, Checkbox, SpinLoading } from "@antscorp/ama-ui";
+// Assets
+import backgroundImage from "assets/images/catch-rewards/background.webp";
+import logoImage from "assets/images/catch-rewards/logo.webp";
+import iconLeaderImage from "assets/images/catch-rewards/icon-leaderboard.webp";
+import iconShareImage from "assets/images/catch-rewards/icon-share.webp";
+
+import { Button, Checkbox, Image, SpinLoading } from "@antscorp/ama-ui";
 import { useImmer } from "use-immer";
 import { useLocalStorage, useToggle } from "usehooks-ts";
 import {
@@ -21,9 +17,8 @@ import {
   LOCAL_STORAGE_KEY,
   PAGE_TYPE,
 } from "constant";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilState } from "recoil";
 import { merryChristmasState } from "../../state";
-import { authenticationState } from "state";
 import { useRemainPlays } from "../../hooks";
 import {
   useAppConfig,
@@ -35,14 +30,13 @@ import {
 import { SCREEN_KEYS } from "../../constants";
 import { SystemNotificationModal, TermAndConditionSheet } from "components";
 import { closeApp } from "zmp-sdk/apis";
-import { Snowfall } from "../../components";
 import clsx from "clsx";
 import { BaseScreen } from "../../types";
 
 interface MainMenuProps extends BaseScreen {}
 
 const MainMenuWrapper = styled(motion.div)`
-  background: url(${backgroundImage}) no-repeat top center;
+  background: url(${backgroundImage}) no-repeat center center;
   background-size: cover;
   height: 100vh;
   width: 100%;
@@ -54,94 +48,113 @@ const MainMenuWrapper = styled(motion.div)`
   position: relative;
 `;
 
-const ChristmasLogo = styled(motion.img)``;
+const LogoWrapper = styled(motion.div)`
+  position: absolute;
+  width: 33%;
+  top: 4%;
+  left: 50%;
+  transform: translateX(-50%);
+`;
 
 const ButtonWrapper = styled.div`
-  background: url(${bottomBackgroundImage}) no-repeat top center;
   width: 100%;
-  height: 40%;
-
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
+  gap: 14px;
   flex: 0 0 auto;
+  padding-bottom: 6%;
 `;
 
-const BtnPlay = styled(motion.button)`
-  background: url(${btnPlayImage}) no-repeat center / contain;
-  aspect-ratio: 766/125;
-  width: 65%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  &.disabled {
-    pointer-events: none;
-    filter: grayscale(1);
-    transform: none;
-  }
-`;
-const BtnBXH = styled(motion.button)`
-  background: url(${btnBXHImage}) no-repeat center / contain;
-  aspect-ratio: 766/125;
-  width: 65%;
-  &.disabled {
-    pointer-events: none;
-    filter: grayscale(1);
-    transform: none;
-  }
-`;
-const BtnShare = styled(motion.button)`
-  background: url(${btnShareImage}) no-repeat center / contain;
-  aspect-ratio: 124/125;
-  width: 11%;
-`;
-const BtnAddTurn = styled(motion.button)`
-  background: url(${btnAddTurnImage}) no-repeat center / contain;
-  aspect-ratio: 580/125;
-  width: 49%;
-`;
-
-const ChildContainer = styled(motion.div)`
-  display: flex;
-  align-items: center;
-  justify-content: center;
+export const ButtonBox = styled(motion.button)`
+  aspect-ratio: 267/46;
   width: 60%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #243771;
+  border-radius: 10px;
+  box-shadow: 0px 4px 4px 0px #d97b9640, 0px 0px 6px 2px #ffffff66 inset;
 
-  background-color: #ffffffb0;
-  color: #1c3a1c;
-  padding: 3px 8px;
-  border-radius: 8px;
+  .icon {
+    width: clamp(10px, 3.3vw, 15px);
+    height: clamp(10px, 3.3vw, 15px);
+  }
+`;
+
+const BtnPlayWrapper = styled(motion.div)`
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const BtnPlay = styled(ButtonBox)`
+  background-color: #f05a92;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: clamp(20px, 6vw, 28px);
+  line-height: 22px;
+
+  &.disabled {
+    pointer-events: none;
+    filter: grayscale(1);
+    transform: none;
+  }
+`;
+const BtnBXH = styled(ButtonBox)`
+  background-color: #ffffff;
+  font-size: clamp(14px, 4vw, 19px);
+  font-weight: 600;
+  line-height: 22px;
+  gap: 4px;
+
+  &.disabled {
+    pointer-events: none;
+    filter: grayscale(1);
+    transform: none;
+  }
+`;
+const BtnShare = styled(ButtonBox)`
+  background-color: #ffffff;
+  font-size: clamp(14px, 4vw, 19px);
+  font-weight: 600;
+  line-height: 22px;
+  gap: 4px;
+`;
+
+const ChildContainer = styled(ButtonBox)`
+  background-color: #ffffff;
+  color: #243771;
+  padding: 0px 10px;
 `;
 
 const CheckboxStyled = styled(Checkbox)`
-  --icon-size: 20px;
-  --font-size: 10px !important;
-  --gap: 6px;
+  --icon-size: 19px;
+  --font-size: clamp(10px, 3vw, 14px) !important;
+  --gap: 10px;
 
   width: 100%;
 
   .adm-checkbox-icon {
-    border-radius: 2px !important;
-    border-color: #1c3a1c !important;
-    background-color: #1c3a1c !important;
+    border-radius: 6px !important;
+    border-color: #243771 !important;
+    background-color: #243771 !important;
 
     svg {
       vertical-align: top;
     }
   }
   .adm-checkbox-content {
-    color: #1c3a1c !important;
-    /* text-align: justify !important; */
-    line-height: 1.2 !important;
+    color: #243771 !important;
+    text-align: left !important;
+    line-height: 17px !important;
     font-weight: 500;
   }
-`;
-
-const BtnGift = styled(motion.button)`
-  background: url(${giftImage}) no-repeat center / contain;
-  aspect-ratio: 73/82;
-  width: 6%;
+  .terms {
+    display: contents;
+  }
 `;
 
 const mainVariants = (index = 0) => ({
@@ -320,25 +333,104 @@ export const MainMenu: React.FC<MainMenuProps> = memo(({ onShare }) => {
           },
         }}
       >
-        <DotBackground
-          className="z-20"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1, transition: { delay: 0.9 } }}
-          exit={{ opacity: 0 }}
-        />
+        <LogoWrapper className="logo-wrapper">
+          <Image src={logoImage} />
+        </LogoWrapper>
 
-        <Snowfall />
+        <ButtonWrapper>
+          <BtnPlayWrapper
+            variants={mainVariants(1)}
+            initial="initial"
+            animate="animate"
+          >
+            <BtnPlay
+              animate={
+                disablePlay
+                  ? { opacity: 0.5, scale: 1 }
+                  : {
+                      opacity: [1, 0.9, 1],
+                      // scale: [1, 1.08, 1],
+                      filter: [
+                        "brightness(1)",
+                        "brightness(1.3)",
+                        "brightness(1)",
+                      ],
+                    }
+              }
+              transition={{
+                duration: 1.2,
+                repeat: disablePlay ? 0 : Infinity,
+                repeatType: "mirror",
+                ease: "easeInOut",
+              }}
+              whileTap={{ filter: "brightness(0.7)", y: 2, scale: 1 }}
+              className={clsx({
+                disabled: disablePlay,
+              })}
+              disabled={disablePlay}
+              onClick={onClickPlayGame}
+            >
+              Tham gia
+            </BtnPlay>
+          </BtnPlayWrapper>
 
-        <BtnGift
+          <ChildContainer
+            className="font-medium"
+            variants={mainVariants(2)}
+            initial="initial"
+            animate="animate"
+          >
+            <CheckboxStyled
+              checked={isAcceptRule}
+              onChange={(checked) =>
+                setMerryChristmasConfig((prev) => ({
+                  ...prev,
+                  isAcceptRule: checked,
+                }))
+              }
+              onClick={(e) => e.stopPropagation()}
+            >
+              Tôi đồng ý với&nbsp;
+              <div className="terms contents" onClick={onClickTermAndCondition}>
+                điều kiện và điều khoản
+              </div>
+              &nbsp;của chương trình
+            </CheckboxStyled>
+          </ChildContainer>
+
+          <BtnBXH
+            variants={mainVariants(3)}
+            initial="initial"
+            animate="animate"
+            whileTap={{ filter: "brightness(0.7)", y: 2 }}
+            onClick={handleViewLeaderboard}
+          >
+            <img className="icon" src={iconLeaderImage} />
+            <div>Bảng xếp hạng</div>
+          </BtnBXH>
+
+          <BtnShare
+            variants={mainVariants(4)}
+            initial="initial"
+            animate="animate"
+            whileTap={{ filter: "brightness(0.7)", y: 2 }}
+            onClick={handleShare}
+          >
+            <img className="icon" src={iconShareImage} />
+            <div>Chia sẻ với bạn bè</div>
+          </BtnShare>
+        </ButtonWrapper>
+
+        {/* <BtnGift
           className="absolute z-30 right-[4%] top-24"
           variants={mainVariants(1)}
           initial="initial"
           animate="animate"
           whileTap={{ filter: "brightness(0.7)", y: 2 }}
           onClick={onClickRedirectVoucherList}
-        />
+        /> */}
 
-        <div className="flex justify-center items-center w-full -mb-[16%] z-10">
+        {/* <div className="flex justify-center items-center w-full -mb-[16%] z-10">
           <ChristmasLogo
             className="h-[85%]"
             variants={mainVariants(1)}
@@ -346,10 +438,10 @@ export const MainMenu: React.FC<MainMenuProps> = memo(({ onShare }) => {
             animate="animate"
             src={christmasImage}
           />
-        </div>
+        </div> */}
 
         {/* Bottom Buttons */}
-        <ButtonWrapper className="pt-[16%]">
+        {/* <ButtonWrapper className="pt-[16%]">
           <div className="flex flex-col items-center gap-2 w-full pb-3 z-10">
             <motion.div
               className="w-full flex justify-center items-center"
@@ -449,7 +541,7 @@ export const MainMenu: React.FC<MainMenuProps> = memo(({ onShare }) => {
               {`Bạn còn ${Math.max(remainPlays, 0)} lượt chơi ngày hôm nay`}
             </ChildContainer>
           </div>
-        </ButtonWrapper>
+        </ButtonWrapper> */}
       </MainMenuWrapper>
 
       {/* Game Guide */}
@@ -464,7 +556,6 @@ export const MainMenu: React.FC<MainMenuProps> = memo(({ onShare }) => {
           e.stopPropagation();
           toggleTermAndConditionVisible();
         }}
-        style={{ fontFamily: '"Barlow Condensed", sans-serif' }}
       >
         <div
           dangerouslySetInnerHTML={{

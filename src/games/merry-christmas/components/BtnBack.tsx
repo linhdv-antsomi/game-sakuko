@@ -1,7 +1,7 @@
 import React, { memo } from "react";
 import { motion } from "motion/react";
 
-import btnBackImg from "assets/images/merry-christmas/btn-back.webp";
+import btnBackImg from "assets/images/catch-rewards/btn-back.webp";
 
 interface BtnBackProps {
   className?: string;

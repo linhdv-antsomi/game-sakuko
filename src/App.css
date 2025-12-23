@@ -1,8 +1,8 @@
 :root {
   --game-width: min(420px, 90vw);
   --game-height: 100vh;
-  --box-width: 140px;
-  --box-height: 140px;
+  --box-width: 191px;
+  --box-height: 99px;
   --hud-bg: rgba(0, 0, 0, 0.35);
   --accent: #e41c2d;
   --text: #fff;

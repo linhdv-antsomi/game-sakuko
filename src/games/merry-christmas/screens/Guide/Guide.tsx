@@ -7,7 +7,7 @@ import contentImage from "assets/images/merry-christmas/guide-content.webp";
 import playImage from "assets/images/merry-christmas/btn-play-2.webp";
 import shareImage from "assets/images/merry-christmas/btn-share-2.webp";
 import share2Image from "assets/images/merry-christmas/btn-share-4.webp";
-import { BtnBack, DynamicParticlesBackground } from "../../components";
+import { BtnBack } from "../../components";
 import styled from "styled-components";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { merryChristmasState } from "../../state";
@@ -257,7 +257,6 @@ export const Guide: React.FC<GuideProps> = memo(({ onShare }) => {
           </div>
         </div>
 
-        <DynamicParticlesBackground />
       </Wrapper>
 
       {/* Request Permission Notification */}

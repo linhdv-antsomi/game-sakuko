@@ -4,7 +4,6 @@ import { createItemTypesFromCollections } from "../constants";
 import { Scores } from "../types";
 import { ChristmasItem } from "schemas";
 
-import scoreBg from "assets/images/merry-christmas/game-score.webp";
 import { ScoreTotal } from "./ScoreTotal";
 
 interface ScoreboardProps {
@@ -15,7 +14,6 @@ interface ScoreboardProps {
 }
 
 const ScoreboardWrapper = styled.div`
-  background: url(${scoreBg}) no-repeat center center / contain;
   aspect-ratio: 753/108;
   /* width: 64%; */
   display: flex;

@@ -14,3 +14,4 @@ export * from "./LeaderBoard";
 export * from "./Authentication";
 export * from "./CardFlip";
 export * from "./MerryChristmas";
+export * from "./Collections";

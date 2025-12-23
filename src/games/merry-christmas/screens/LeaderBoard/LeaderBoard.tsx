@@ -1,16 +1,12 @@
 import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
 
-import bgImage from "assets/images/merry-christmas/background-3.webp";
-import logoImage from "assets/images/merry-christmas/bxh-logo.webp";
-import contentBgImage from "assets/images/merry-christmas/result-bg.webp";
-import contentLogoImage from "assets/images/merry-christmas/bxh-content-logo.webp";
-import playImage from "assets/images/merry-christmas/btn-play-2.webp";
-import shareImage from "assets/images/merry-christmas/btn-share-2.webp";
-import addTurnImage from "assets/images/merry-christmas/btn-share-4.webp";
-import avatarImage from "assets/images/merry-christmas/avatar.webp";
+import bgImage from "assets/images/catch-rewards/background-2.webp";
+import bxhImage from "assets/images/catch-rewards/bxh.webp";
+import iconShareImage from "assets/images/catch-rewards/icon-share.webp";
+import avatarImage from "assets/images/catch-rewards/avatar.webp";
 import styled from "styled-components";
 import { motion } from "motion/react";
-import { BtnBack, DynamicParticlesBackground } from "../../components";
+import { BtnBack } from "../../components";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { merryChristmasState } from "../../state";
 import { SCREEN_KEYS } from "../../constants";
@@ -35,11 +31,9 @@ import { SystemNotificationModal } from "components";
 import { Button } from "@antscorp/ama-ui";
 import { closeApp } from "zmp-sdk/apis";
 import { BaseScreen } from "../../types";
-import pineImage from "assets/images/merry-christmas/pine.webp";
+import { ButtonBox } from "../MainMenu";
 
-interface LeaderBoardProps extends BaseScreen {
-
-}
+interface LeaderBoardProps extends BaseScreen {}
 
 const Wrapper = styled(motion.div)`
   font-family: "Barlow Condensed", "Barlow", sans-serif;
@@ -51,60 +45,103 @@ const Wrapper = styled(motion.div)`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 24px;
+  justify-content: center;
+  gap: 18px;
   padding-top: calc(var(--header-padding-top) + 30px);
 `;
 
-const Logo = styled(motion.img)`
-  mix-blend-mode: lighten;
-  /* max-width: 77%; */
-  /* flex: 1 1 auto; */
-  min-height: 0;
+const BxhWrapper = styled(motion.div)`
+  background: url(${bxhImage}) no-repeat center / contain;
+  width: 86%;
+  aspect-ratio: 1134/1527;
+  position: relative;
 `;
 
-const Content = styled(motion.div)`
-  background: url(${contentBgImage}) no-repeat center / contain;
-  aspect-ratio: 830/1039;
-  max-width: 72%;
-  width: 100%;
-  flex: 0 0 auto;
-  min-height: 0;
+const ItemsWrapper = styled.div`
+  position: absolute;
+  top: 21.5%;
+  left: 8%;
+  width: 84%;
+  height: 55%;
 
   display: flex;
   flex-direction: column;
+  gap: 3%;
+`;
+
+const Item = styled.div<{ $player: any }>`
+  display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 12px;
+  width: 100%;
+  height: 18%;
+  border-radius: 10px;
+  padding: 3px 16px;
+
+  .rank {
+    font-size: 26px;
+    height: 20px;
+    width: 10px;
+    font-weight: 700;
+    color: ${({ $player }) => ($player.rank <= 3 ? "#ffffff" : "#243771")};
+  }
+  .avatar {
+    aspect-ratio: 1/1;
+    width: 13%;
+    margin-left: 16px;
+  }
+  .name {
+    color: #243771;
+    font-weight: 700;
+    font-size: 16px;
+    margin-left: 13px;
+    width: 50%;
+    max-width: 50%;
+  }
+  .score {
+    margin-left: auto;
+    font-weight: 600;
+    font-size: 16px;
+    color: #243771;
+  }
 `;
 
-const ContentLogo = styled(motion.img)``;
+const MyRank = styled.div`
+  position: absolute;
+  top: 79%;
+  left: 8%;
+  width: 84%;
+  height: 5%;
 
-const Person = styled(motion.div)`
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  max-width: 30%;
-  flex: 1;
-`;
-const PersonAvatar = styled(motion.img)`
-  border-radius: 50%;
-  aspect-ratio: 1/1;
-  max-width: 50px;
-  align-self: center;
-`;
-const PersonName = styled(motion.div)`
-  font-weight: 600;
-  font-size: 14px;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 19px;
   text-align: center;
 `;
-const MyRankText = styled(motion.div)`
-  font-weight: 600;
-  font-size: 16px;
-  color: #5b6e74;
+
+const BtnPlay = styled(ButtonBox)`
+  aspect-ratio: 274/46;
+  width: 62%;
+  background-color: #f05a92;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: clamp(20px, 6vw, 28px);
+  line-height: 22px;
+
+  &.disabled {
+    pointer-events: none;
+    filter: grayscale(1);
+    transform: none;
+  }
 `;
 
-const Btn = styled(motion.button)`
-  max-width: 100%;
+const BtnShare = styled(ButtonBox)`
+  aspect-ratio: 274/46;
+  width: 62%;
+  background-color: #ffffff;
+  font-size: clamp(14px, 4vw, 19px);
+  font-weight: 600;
+  line-height: 22px;
+  gap: 4px;
 `;
 
 const mainVariants = (index = 0) => ({
@@ -267,75 +304,51 @@ export const LeaderBoard: React.FC<LeaderBoardProps> = memo(({ onShare }) => {
             }))
           }
         />
-        <motion.div className="relative max-w-[77%] min-h-0">
-          <Logo
-            className="z-10 h-full"
-            variants={mainVariants(1)}
-            initial="initial"
-            animate="animate"
-            src={logoImage}
-          />
-          <motion.img
-            className="absolute bottom-[6%] left-0 scale-[1.05]"
-            variants={mainVariants(1)}
-            initial="initial"
-            animate="animate"
-            src={pineImage}
-          />
-        </motion.div>
-        <Content
-          className="z-10"
-          variants={mainVariants(2)}
+        <BxhWrapper
+          variants={mainVariants(1)}
           initial="initial"
           animate="animate"
         >
-          <ContentLogo className="max-w-[55%]" src={contentLogoImage} />
-          <div className="flex w-[75%] justify-around gap-2">
+          <ItemsWrapper>
             {leaderBoardItems.map((player) => (
-              <Person key={player.userId}>
-                <PersonAvatar src={player.avatar || avatarImage} />
-                <PersonName className="line-clamp-2">
+              <Item key={player.userId} $player={player}>
+                <div className="rank">{player.rank}</div>
+                <div className="avatar">
+                  <img src={player.avatar || avatarImage} />
+                </div>
+                <div className="name line-clamp-1">
                   {player.name || "Guest"}
-                </PersonName>
-              </Person>
+                </div>
+                <div className="score">
+                  {Number(player.score).toLocaleString("vi-VN") || 0}
+                </div>
+              </Item>
             ))}
-          </div>
-          <MyRankText>Xếp hạng của bạn: #{myRankInfo?.rank || 0}</MyRankText>
-        </Content>
-        <div className="flex flex-col gap-4 max-w-[55%] flex-grow-0 flex-shrink-0 z-10 mb-6">
-          <Btn
-            variants={mainVariants(3)}
-            initial="initial"
-            animate="animate"
-            whileTap={{ filter: "brightness(0.7)", y: 2 }}
-            onClick={onClickPlayGame}
-          >
-            <img src={playImage} />
-          </Btn>
+          </ItemsWrapper>
 
-          <div className="flex gap-2">
-            <Btn
-              variants={mainVariants(4)}
-              initial="initial"
-              animate="animate"
-              whileTap={{ filter: "brightness(0.7)", y: 2 }}
-              onClick={handleShare}
-            >
-              <img src={shareImage} />
-            </Btn>
-            <Btn
-              variants={mainVariants(4)}
-              initial="initial"
-              animate="animate"
-              whileTap={{ filter: "brightness(0.7)", y: 2 }}
-              onClick={handleShare}
-            >
-              <img src={addTurnImage} />
-            </Btn>
-          </div>
-        </div>
+          <MyRank>Xếp hạng của bạn: #{myRankInfo?.rank || 0}</MyRank>
+        </BxhWrapper>
 
-        <DynamicParticlesBackground />
+        <BtnPlay
+          variants={mainVariants(2)}
+          initial="initial"
+          animate="animate"
+          whileTap={{ filter: "brightness(0.7)", y: 2 }}
+          onClick={onClickPlayGame}
+        >
+          Chơi ngay
+        </BtnPlay>
+
+        <BtnShare
+          variants={mainVariants(3)}
+          initial="initial"
+          animate="animate"
+          whileTap={{ filter: "brightness(0.7)", y: 2 }}
+          onClick={handleShare}
+        >
+          <img className="icon" src={iconShareImage} />
+          <div>Chia sẻ ngay</div>
+        </BtnShare>
       </Wrapper>
 
       {/* Request Permission Notification */}

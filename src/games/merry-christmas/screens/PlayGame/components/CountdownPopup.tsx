@@ -2,11 +2,6 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { motion, AnimatePresence } from "motion/react";
 
-import countdownBg from "assets/images/merry-christmas/countdown-board.webp";
-import oneBg from "assets/images/merry-christmas/countdown-one.webp";
-import twoBg from "assets/images/merry-christmas/countdown-two.webp";
-import threeBg from "assets/images/merry-christmas/countdown-three.webp";
-
 interface CountdownPopupProps {
   count?: number;
   onComplete: () => void;
@@ -25,6 +20,7 @@ const PopupOverlay = styled(motion.div)`
   z-index: 1000;
   gap: 24px;
   border-radius: 16px;
+  background-color: #D9D9D966;
 
   .popup-content {
     display: flex;
@@ -39,47 +35,38 @@ const PopupOverlay = styled(motion.div)`
 `;
 
 const CountdownWrapper = styled(motion.div)`
-  background: url(${countdownBg}) no-repeat center / contain;
-  aspect-ratio: 797/419;
-  width: 68%;
+  background: #f05a92;
+  border-radius: 15px;
+  box-shadow: 0px 4px 4px 0px #d97b9640, 0px 0px 6px 2px #ffffff66 inset;
+  width: 60%;
   display: flex;
-  align-items: center;
-  justify-content: flex-end;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
   position: relative;
-  border-radius: 10px;
+  padding: 18px 0px;
+  gap: 10px;
 `;
 
 const Title = styled(motion.h2)`
-  color: var(--color-text-2);
-  font-size: 14px;
-  font-weight: 400;
+  color: #ffffff;
+  font-size: 24px;
+  font-weight: 500;
   text-align: center;
+  height: 21px;
 `;
 
 const CountdownNumber = styled(motion.div)`
-  font-size: 40px;
+  font-size: 58px;
   font-weight: 600;
-  color: var(--color-primary);
+  color: #ffff2c;
 
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 80px;
-  margin-bottom: 3%;
+  height: 48px;
+  /* margin-bottom: 3%; */
 `;
-
-const COUNT_MAP = {
-  1: {
-    image: oneBg,
-  },
-  2: {
-    image: twoBg,
-  },
-  3: {
-    image: threeBg,
-  },
-};
 
 export const CountdownPopup: React.FC<CountdownPopupProps> = ({
   count: initialCount = 3,
@@ -108,6 +95,7 @@ export const CountdownPopup: React.FC<CountdownPopupProps> = ({
       transition={{ duration: 0.3 }}
     >
       <CountdownWrapper>
+        <Title>Chuẩn bị</Title>
         <AnimatePresence mode="wait">
           <CountdownNumber
             key={count}
@@ -119,7 +107,7 @@ export const CountdownPopup: React.FC<CountdownPopupProps> = ({
               ease: "easeOut",
             }}
           >
-            {COUNT_MAP?.[count]?.image && <img className="h-full" src={COUNT_MAP?.[count]?.image} alt="countdown" />}
+            {count}
           </CountdownNumber>
         </AnimatePresence>
       </CountdownWrapper>

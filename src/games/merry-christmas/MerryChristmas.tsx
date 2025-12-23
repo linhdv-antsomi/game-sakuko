@@ -39,14 +39,15 @@ import { useNavigate } from "react-router-dom";
 interface MerryChristmasProps {}
 
 export const MerryChristmasWrapper = styled.div`
-  --color-background-game: #a2070f;
+  --color-background-game: #FFD1E8;
   --header-padding-top: calc(var(--zaui-safe-area-inset-top, 24px));
 
   width: 100%;
   height: 100%;
   background-color: var(--color-background-game);
   /* padding-top: var(--header-padding-top); */
-  font-family: "Barlow", sans-serif;
+  font-family: "Montserrat", sans-serif;
+  overflow: hidden;
 
   .screen-container {
   }

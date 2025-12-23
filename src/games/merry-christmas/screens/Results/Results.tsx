@@ -1,27 +1,24 @@
 import React, { memo, useCallback } from "react";
 
-import bgImage from "assets/images/merry-christmas/background-3.webp";
-import logoImage from "assets/images/merry-christmas/result-logo.webp";
-import contentBgImage from "assets/images/merry-christmas/result-bg.webp";
-import continueImage from "assets/images/merry-christmas/btn-continue.webp";
-import bxhImage from "assets/images/merry-christmas/btn-bxh.webp";
-import shareImage from "assets/images/merry-christmas/btn-share-3.webp";
-import giftImage from "assets/images/merry-christmas/btn-gift.webp";
+import bgImage from "assets/images/catch-rewards/background-2.webp";
+
+import iconLeaderImage from "assets/images/catch-rewards/icon-leaderboard.webp";
+import iconShareImage from "assets/images/catch-rewards/icon-share.webp";
+import iconGiftImage from "assets/images/catch-rewards/icon-gift.webp";
 import styled from "styled-components";
 import { motion } from "motion/react";
 import { useRecoilState } from "recoil";
 import { merryChristmasState, merryChristmasStateDefault } from "../../state";
 import Barcode from "react-barcode";
-import { CopyIcon } from "lucide-react";
+import { Check, Copy } from "lucide-react";
 import { copyToClipboard } from "utils";
-import { SpinLoading, Toast } from "@antscorp/ama-ui";
-import { DynamicParticlesBackground } from "../../components";
+import { Toast } from "@antscorp/ama-ui";
 import { useNavigateWithSearch } from "hooks";
 import { useRemainPlays } from "../../hooks";
 import { SCREEN_KEYS } from "../../constants";
 import { BaseScreen } from "../../types";
 import { EVENT_CONFIG, PAGE_TYPE } from "constant";
-import pineImage from "assets/images/merry-christmas/pine.webp";
+import { ButtonBox } from "../MainMenu";
 
 interface ResultsProps extends BaseScreen {}
 
@@ -34,46 +31,144 @@ const Wrapper = styled(motion.div)`
 
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
   gap: 24px;
   padding-top: calc(var(--header-padding-top) + 30px);
 `;
 
-const Logo = styled(motion.img)`
-  mix-blend-mode: lighten;
-  /* max-width: 77%; */
-  aspect-ratio: 902/553;
-  /* flex: 1 1 auto; */
-  min-height: 0;
-`;
-
 const Content = styled(motion.div)`
-  background: url(${contentBgImage}) no-repeat center / contain;
-  aspect-ratio: 830/1039;
-  max-width: 72%;
+  width: 88%;
+
+  .heading {
+    width: 100%;
+    background: #243771;
+    border-radius: 11px;
+    box-shadow: 0px 0px 3px 2px #ffffff4d inset;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 30px;
+    text-transform: capitalize;
+    padding: 16px 30px;
+    text-align: center;
+    letter-spacing: 2px;
+  }
+
+  .voucher {
+    width: 100%;
+    background: #ffffff;
+    border-radius: 15px;
+    padding: 24px 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+  }
+  .voucher-text {
+    font-size: 16px;
+    color: #243771;
+    line-height: 18px;
+    font-weight: 500;
+  }
+  .voucher-totalscore {
+    color: #ed5691;
+    display: contents;
+  }
+
+  .voucher-name {
+    font-weight: 600;
+    font-size: 23px;
+    color: #ed5691;
+  }
+
+  .voucher-barcode-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 14px;
+    color: #000000;
+  }
+  .voucher-copy {
+    display: flex;
+    align-items: center;
+    background: #f0f0f0;
+    border-radius: 10px;
+    gap: 10px;
+    padding: 6px 14px;
+  }
+
+  .voucher-note {
+    color: #777777;
+    font-size: 14px;
+  }
+`;
+
+const BtnPlay = styled(ButtonBox)`
   width: 100%;
-  flex: 0 0 auto;
-  min-height: 0;
+  aspect-ratio: 390/46;
+  background-color: #f05a92;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: clamp(20px, 6vw, 28px);
+  line-height: 22px;
+  margin-top: 23px;
 
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  &.disabled {
+    pointer-events: none;
+    filter: grayscale(1);
+    transform: none;
+  }
 `;
 
-const Btn = styled(motion.button)`
-  max-width: 100%;
+const BtnAddTurn = styled(ButtonBox)`
+  aspect-ratio: 192/46;
+  background-color: #ffffff;
+  font-size: clamp(14px, 4vw, 19px);
+  font-weight: 600;
+  line-height: 22px;
+  gap: 4px;
+
+  &.disabled {
+    pointer-events: none;
+    filter: grayscale(1);
+    transform: none;
+  }
+`;
+const BtnBXH = styled(ButtonBox)`
+  aspect-ratio: 192/46;
+  background-color: #ffffff;
+  font-size: clamp(14px, 4vw, 19px);
+  font-weight: 600;
+  line-height: 22px;
+  gap: 4px;
+
+  &.disabled {
+    pointer-events: none;
+    filter: grayscale(1);
+    transform: none;
+  }
 `;
 
-const TextScoreResult = styled.div`
-  font-family: "Barlow", sans-serif;
-  font-size: 13px;
-`;
+const BtnGift = styled(ButtonBox)`
+  aspect-ratio: 390/46;
+  width: 100%;
+  background-color: #ffffff;
+  font-size: clamp(14px, 4vw, 19px);
+  font-weight: 600;
+  line-height: 22px;
+  gap: 4px;
+  margin-top: 13px;
 
-const Text = styled.div`
-  font-family: "Barlow", sans-serif;
-  font-size: 13px;
-  font-weight: 500;
+  &.disabled {
+    pointer-events: none;
+    filter: grayscale(1);
+    transform: none;
+  }
+
+  .icon {
+    width: 15px;
+    height: 15px;
+  }
 `;
 
 const mainVariants = (index = 0) => ({
@@ -108,7 +203,14 @@ export const Results: React.FC<ResultsProps> = memo(({ onShare }) => {
       copyToClipboard(promotion_code, {
         onSuccess: () => {
           Toast.show({
-            icon: "success",
+            icon: (
+              <Check
+                size={36}
+                style={{
+                  margin: "0px auto",
+                }}
+              />
+            ),
             content: <div className="text-center">Sao chép mã thành công</div>,
             duration: 1000,
           });
@@ -164,44 +266,31 @@ export const Results: React.FC<ResultsProps> = memo(({ onShare }) => {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
-      <motion.div className="relative max-w-[77%] min-h-0">
-        <Logo
-          src={logoImage}
-          className="z-10 h-full"
+      <Content>
+        <motion.div
+          className="heading"
           variants={mainVariants(1)}
           initial="initial"
           animate="animate"
-        />
-        <motion.img
-          className="absolute bottom-[6%] left-0 scale-[1.05]"
-          variants={mainVariants(1)}
+        >
+          Sakuko tặng bạn
+        </motion.div>
+        <motion.div
+          className="voucher"
+          variants={mainVariants(2)}
           initial="initial"
           animate="animate"
-          src={pineImage}
-        />
-      </motion.div>
-      <Content
-        className="z-10"
-        variants={mainVariants(2)}
-        initial="initial"
-        animate="animate"
-        exit={{ opacity: 0, transition: { duration: 0, delay: 0 } }}
-      >
-        {isAllocatingCode ? (
-          <div className="flex flex-col items-center">
-            <SpinLoading color="primary" />
-            <Text className="mt-2">Đang phát thưởng ...</Text>
+        >
+          <div className="voucher-text">
+            Bạn đã hứng được{" "}
+            <div className="voucher-totalscore">{totalScore || 0} điểm</div>
+            <br />
+            <div className="voucher-text" style={{ textAlign: "center" }}>
+              và nhận được
+            </div>
           </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center max-w-[85%]">
-            <Text>Bạn đã hứng được {totalScore || 0} điểm</Text>
-            <Text className="text-[#9d070f] !font-semibold">Nhận ngay</Text>
-            <Text className="text-[#9d070f] !font-bold line-clamp-2 !text-sm text-center">
-              {result_title || name}
-            </Text>
-            <Text className="line-clamp-2 text-center text-xs">{`(${
-              result_description || ""
-            })`}</Text>
+          <div className="voucher-name">{result_title || name}</div>
+          <div className="voucher-barcode-wrapper">
             {promotion_code && (
               <>
                 <Barcode
@@ -212,58 +301,57 @@ export const Results: React.FC<ResultsProps> = memo(({ onShare }) => {
                 />
               </>
             )}
-            <div className="flex items-center gap-1">
-              <Text className="!font-semibold !text-sm">
-                ID: {promotion_code}
-              </Text>
-              <CopyIcon
-                className="w-3 h-3 text-black"
-                onClick={onClickCopyCode}
-              />
+            <div className="voucher-copy" onClick={onClickCopyCode}>
+              Sao chép mã <Copy size={16} />
             </div>
           </div>
-        )}
-      </Content>
-      <div className="flex flex-col gap-2 max-w-[55%] flex-grow-0 flex-shrink-0 z-10 mb-4">
-        <Btn
+          <div className="voucher-note">
+            Kiểm tra ví quà tặng để biết thêm chi tiết
+          </div>
+        </motion.div>
+
+        <BtnPlay
           variants={mainVariants(3)}
           initial="initial"
           animate="animate"
           whileTap={{ filter: "brightness(0.7)", y: 2 }}
           onClick={handleContinuePlay}
         >
-          <img src={continueImage} />
-        </Btn>
-        <Btn
-          variants={mainVariants(4)}
-          initial="initial"
-          animate="animate"
-          whileTap={{ filter: "brightness(0.7)", y: 2 }}
-          onClick={goChampion}
-        >
-          <img src={bxhImage} />
-        </Btn>
-        <Btn
+          Chơi tiếp
+        </BtnPlay>
+        <div className="flex gap-2" style={{ marginTop: 13 }}>
+          <BtnAddTurn
+            variants={mainVariants(4)}
+            initial="initial"
+            animate="animate"
+            whileTap={{ filter: "brightness(0.7)", y: 2 }}
+            onClick={handleShare}
+          >
+            <img className="icon" src={iconShareImage} />
+            <div>Thêm lượt</div>
+          </BtnAddTurn>
+          <BtnBXH
+            variants={mainVariants(4)}
+            initial="initial"
+            animate="animate"
+            whileTap={{ filter: "brightness(0.7)", y: 2 }}
+            onClick={goChampion}
+          >
+            <img className="icon" src={iconLeaderImage} />
+            <div>Bảng xếp hạng</div>
+          </BtnBXH>
+        </div>
+        <BtnGift
           variants={mainVariants(5)}
-          initial="initial"
-          animate="animate"
-          whileTap={{ filter: "brightness(0.7)", y: 2 }}
-          onClick={handleShare}
-        >
-          <img src={shareImage} />
-        </Btn>
-        <Btn
-          variants={mainVariants(6)}
           initial="initial"
           animate="animate"
           whileTap={{ filter: "brightness(0.7)", y: 2 }}
           onClick={onClickRedirectVoucherList}
         >
-          <img src={giftImage} />
-        </Btn>
-      </div>
-
-      <DynamicParticlesBackground />
+          <img className="icon" src={iconGiftImage} />
+          <div>Mở ví quà ngay</div>
+        </BtnGift>
+      </Content>
     </Wrapper>
   );
 });

@@ -22,7 +22,7 @@ import { useSoundEffect } from "hooks";
 // Assets
 import sparkleSound from "assets/sound-effects/sparkle.mp3";
 import errorSound from "assets/sound-effects/error.mp3";
-import burstLightImg from "assets/images/merry-christmas/burst-light.webp";
+import burstLightImg from "assets/images/catch-rewards/burst-light.webp";
 
 interface UseGameEngineOptions {
   collections?: ChristmasItem[];

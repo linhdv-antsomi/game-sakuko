@@ -1,103 +1,152 @@
+import dayjs from "dayjs";
 import React from "react";
+import { CollectionItem } from "schemas";
 import styled from "styled-components";
 import { Button } from "zmp-ui";
+import { Scores } from "../types";
+import { Divider } from "@antscorp/ama-ui";
+import { motion } from "motion/react";
+
+import iconPlayImg from "assets/images/catch-rewards/icon-play.webp";
 
 interface ControlsProps {
-  fallingCount: number;
   timeLeft: number;
-  isGameOver: boolean;
-  onRestart: () => void;
+  scores: Scores;
+  totalScore: number;
+  collections: CollectionItem[];
+  remainPlays: number;
+  className?: string;
 }
 
 interface ControlsWrapperProps {
   $isGameOver: boolean;
 }
 
-const ControlsWrapper = styled.div<ControlsWrapperProps>`
+const Wrapper = styled(motion.div)`
   display: flex;
-  align-items: center;
-  gap: 12px;
-  width: var(--game-width);
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+`;
+
+const ControlsWrapper = styled.div`
+  display: flex;
   justify-content: space-between;
-  flex-wrap: wrap;
+  align-items: center;
+  width: 100%;
+  border-radius: 10px;
+  padding: 8px 12px;
+  background: #ffffff;
+  box-shadow: 0px 3px 4px 0px #d97b9640, 0px 0px 1px 1px #d2d2d233 inset;
 
-  .stats {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+  .timer {
+    font-weight: 600;
+    font-size: 18px;
+    color: #243771;
+    width: 55px;
   }
 
-  .stat {
+  .divider {
+    width: 2px;
+    height: 30px;
+    background: #2d447f;
+  }
+
+  .items {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 14px;
+    padding-left: 18px;
+  }
+
+  .item {
     display: flex;
     align-items: center;
-    gap: 4px;
-    font-size: 0.9rem;
+    justify-content: center;
+    gap: 2px;
+  }
+  .item-icon {
+    height: 24px;
+  }
+  .item-info {
+    color: #243771;
     font-weight: 500;
-    color: var(--color-text-secondary);
-    background: rgba(255, 255, 255, 0.98);
-    padding: 6px 12px;
-    border-radius: 999px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    font-size: 15px;
+    width: 16px;
+    text-align: right;
+  }
+`;
+
+const ScoreWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .remain-play {
+    background: #ffffff;
+    border-radius: 6px;
+    box-shadow: 0px 3px 4px 0px #d97b9640, 0px 0px 1px 1px #d2d2d233 inset;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 12px;
+    color: #243771;
+    font-weight: 500;
+    font-size: 15px;
   }
 
-  .stat-label {
-    color: var(--color-text-tertiary);
-    font-size: 0.8rem;
-  }
-
-  .stat-value {
-    font-weight: 700;
-    color: var(--color-primary);
-  }
-
-  .time-left {
-    min-width: 80px;
-  }
-
-  .restart-button {
-    opacity: ${(props) => (props.$isGameOver ? "1" : "0.5")};
-    pointer-events: ${(props) => (props.$isGameOver ? "auto" : "none")};
-  }
-
-  @media (max-width: 520px) {
-    .stats {
-      gap: 8px;
-    }
-
-    .stat {
-      font-size: 0.85rem;
-      padding: 5px 10px;
-    }
-
-    .stat-label {
-      font-size: 0.75rem;
-    }
+  .total-score {
+    color: #ffffff;
+    background: #ed5691;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 15px;
+    font-weight: 500;
+    box-shadow: 0px 3px 4px 0px #d97b964d, 0px 0px 1px 1px #d2d2d233 inset;
   }
 `;
 
 export const Controls: React.FC<ControlsProps> = React.memo(
-  ({ fallingCount, timeLeft, isGameOver, onRestart }) => {
+  ({ timeLeft, collections, scores, remainPlays, totalScore, className }) => {
     return (
-      <ControlsWrapper $isGameOver={isGameOver}>
-        <div className="stats">
-          <div className="stat time-left">
-            <span className="stat-label">Thời gian:</span>
-            <span className="stat-value">{timeLeft}s</span>
+      <Wrapper>
+        <ControlsWrapper>
+          <div className="timer">
+            {dayjs((timeLeft || 0) * 1000).format("mm:ss")}
           </div>
-          <div className="stat">
-            <span className="stat-label">Đã rơi:</span>
-            <span className="stat-value">{fallingCount}</span>
+          <div className="divider" />
+          <div className="items">
+            {collections
+              ?.filter((collection) => collection.type === "plus-score")
+              ?.map((collection) => (
+                <div className="item" key={collection.id}>
+                  <img
+                    className="item-icon"
+                    src={collection.scoreImage || collection.itemImage}
+                    alt={collection.title}
+                  />
+                  <div className="item-info">
+                    <span className="value">{scores[collection.id] || 0}</span>
+                  </div>
+                </div>
+              ))}
           </div>
-        </div>
-        {/* <Button
-          size="small"
-          onClick={onRestart}
-          className="restart-button"
-          disabled={!isGameOver}
-        >
-          {isGameOver ? "Chơi lại" : "Đang chơi..."}
-        </Button> */}
-      </ControlsWrapper>
+        </ControlsWrapper>
+        <ScoreWrapper>
+          <div className="remain-play">
+            Lượt chơi: {remainPlays}{" "}
+            <img
+              src={iconPlayImg}
+              style={{
+                width: 18,
+                marginLeft: 3,
+              }}
+            />
+          </div>
+          <div className="total-score">Điểm số: {totalScore}</div>
+        </ScoreWrapper>
+      </Wrapper>
     );
   }
 );

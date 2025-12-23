@@ -1,24 +1,15 @@
 import { ItemType, Scores } from "./types";
-import { ChristmasItem } from "schemas";
+import { ChristmasItem, CollectionItem } from "schemas";
 
 // Assets
-import itemTShirt from "assets/images/merry-christmas/item-t-shirt.webp";
-import itemTrousers from "assets/images/merry-christmas/item-trouser.webp";
-import itemLongShirt from "assets/images/merry-christmas/item-long-shirt.webp";
-import itemPerfume from "assets/images/merry-christmas/item-perfume.webp";
-import itemBelt from "assets/images/merry-christmas/item-belt.webp";
-import itemJacket from "assets/images/merry-christmas/item-jacket.webp";
-import itemRock from "assets/images/merry-christmas/item-rock.webp";
-import itemTime from "assets/images/merry-christmas/item-time.webp";
-
-import scoreTShirt from "assets/images/merry-christmas/score-t-shirt.webp";
-import scoreTrousers from "assets/images/merry-christmas/score-trouser.webp";
-import scoreLongShirt from "assets/images/merry-christmas/score-long-shirt.webp";
-import scorePerfume from "assets/images/merry-christmas/score-perfume.webp";
-import scoreBelt from "assets/images/merry-christmas/score-belt.webp";
-import scoreJacket from "assets/images/merry-christmas/score-jacket.webp";
-import scoreRock from "assets/images/merry-christmas/score-rock.webp";
-import scoreTime from "assets/images/merry-christmas/score-time.webp";
+import item1Img from "assets/images/catch-rewards/item-1.webp";
+import item2Img from "assets/images/catch-rewards/item-2.webp";
+import item3Img from "assets/images/catch-rewards/item-3.webp";
+import item4Img from "assets/images/catch-rewards/item-4.webp";
+import item5Img from "assets/images/catch-rewards/item-5.webp";
+import item6Img from "assets/images/catch-rewards/item-6.webp";
+import item7Img from "assets/images/catch-rewards/item-7.webp";
+import item8Img from "assets/images/catch-rewards/item-8.webp";
 
 /**
  * Create item types from collections
@@ -106,7 +97,7 @@ export const getTotalScore = (scores: Scores, collections: ChristmasItem[]): num
  * @property COUNTDOWN_START - Starting number for countdown before game starts (3-2-1)
  */
 export const GAME_CONFIG = Object.freeze({
-  DURATION_SECONDS: 30,
+  DURATION_SECONDS: 15,
   BASE_SPEED_GROWTH: 0.2,
   SPEED_MULTIPLIER_MAX: 3,
   SPAWN_INTERVAL_START: 900,
@@ -125,81 +116,81 @@ export const GAME_CONFIG = Object.freeze({
 export const BOX_CONFIG = Object.freeze({
   WIDTH_VAR: "--box-width",
   HEIGHT_VAR: "--box-height",
-  DEFAULT_WIDTH: 150,
-  DEFAULT_HEIGHT: 150,
+  DEFAULT_WIDTH: 191,
+  DEFAULT_HEIGHT: 99,
 });
 
-export const COLLECTTIONS: ChristmasItem[] = [
+export const COLLECTTIONS: CollectionItem[] = [
   {
     id: "1",
-    title: "Áo",
+    title: "Thẻ giảm giá",
     type: "plus-score",
-    value: 10,
-    rateSpawn: 0.17,
-    itemImage: itemTShirt,
-    scoreImage: scoreTShirt,
+    value: 20,
+    rateSpawn: 0.3333,
+    itemImage: item1Img,
+    scoreImage: item1Img,
   },
   {
     id: "2",
-    title: "Quần dài",
+    title: "Sữa meji",
     type: "plus-score",
-    value: 10,
-    rateSpawn: 0.15,
-    itemImage: itemTrousers,
-    scoreImage: scoreTrousers,
+    value: 60,
+    rateSpawn: 0.0889,
+    itemImage: item4Img,
+    scoreImage: item4Img,
   },
   {
     id: "3",
-    title: "Áo dài tay",
+    title: "Mì chính Ajinomoto",
     type: "plus-score",
-    value: 10,
-    rateSpawn: 0.15,
-    itemImage: itemLongShirt,
-    scoreImage: scoreLongShirt,
+    value: 50,
+    rateSpawn: 0.1111,
+    itemImage: item2Img,
+    scoreImage: item2Img,
   },
   {
     id: "4",
-    title: "Thắt lưng",
+    title: "Thực phẩm chức năng ikimoto",
     type: "plus-score",
-    value: 20,
-    rateSpawn: 0.10,
-    itemImage: itemBelt,
-    scoreImage: scoreBelt,
+    value: 50,
+    rateSpawn: 0.1111,
+    itemImage: item3Img,
+    scoreImage: item3Img,
   },
   {
     id: "5",
-    title: "Áo khoác",
+    title: "Mỹ phẩm chống nắng Anessa",
     type: "plus-score",
-    value: 20,
-    rateSpawn: 0.10,
-    itemImage: itemJacket,
-    scoreImage: scoreJacket,
+    value: 50,
+    rateSpawn: 0.1111,
+    itemImage: item5Img,
+    scoreImage: item5Img,
   },
   {
     id: "6",
-    title: "Nước hoa",
-    type: "plus-score",
-    value: 20,
-    rateSpawn: 0.10,
-    itemImage: itemPerfume,
-    scoreImage: scorePerfume,
+    title: "Đồng hồ",
+    type: "plus-time",
+    value: 5,
+    rateSpawn: 0.0444,
+    itemImage: item6Img,
+    scoreImage: item6Img,
   },
   {
     id: "7",
-    title: "Đá",
-    type: "minus-score",
-    value: 25,
-    rateSpawn: 0.18,
-    itemImage: itemRock,
-    scoreImage: scoreRock,
+    title: "Đá tảng",
+    type: "stun",
+    value: 1.25,
+    rateSpawn: 0.0667,
+    itemImage: item7Img,
+    scoreImage: item7Img,
   },
   {
     id: "8",
-    title: "Thời gian",
-    type: "plus-time",
-    value: 2,
-    rateSpawn: 0.05,
-    itemImage: itemTime,
-    scoreImage: scoreTime,
+    title: "Boom",
+    type: "minus-score",
+    value: 50,
+    rateSpawn: 0.1333,
+    itemImage: item8Img,
+    scoreImage: item8Img,
   },
 ];

@@ -2,7 +2,6 @@ import { motion } from "motion/react";
 import React, { memo } from "react";
 import styled from "styled-components";
 
-import timeBg from "assets/images/merry-christmas/game-time.webp";
 import dayjs from "dayjs";
 
 interface TimeboardProps {
@@ -11,7 +10,6 @@ interface TimeboardProps {
 }
 
 const Wrapper = styled(motion.div)`
-  background: url(${timeBg}) no-repeat center center / contain;
   display: flex;
   align-items: center;
   justify-content: flex-end;
