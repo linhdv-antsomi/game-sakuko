@@ -36,7 +36,6 @@ import { ButtonBox } from "../MainMenu";
 interface LeaderBoardProps extends BaseScreen {}
 
 const Wrapper = styled(motion.div)`
-  font-family: "Barlow Condensed", "Barlow", sans-serif;
   background: url(${bgImage}) bottom center / cover no-repeat;
   width: 100%;
   height: 100vh;
@@ -162,7 +161,7 @@ const mainVariants = (index = 0) => ({
 export const LeaderBoard: React.FC<LeaderBoardProps> = memo(({ onShare }) => {
   const [christmasState, setMerryChristmasState] =
     useRecoilState(merryChristmasState);
-  const { userInfo: userInfo } = useUserInfo();
+  const { userInfo } = useUserInfo();
   const { data: leaderBoardData } = useGetLeaderBoardChristmas({
     options: {
       refetchOnMount: "always",
@@ -182,7 +181,6 @@ export const LeaderBoard: React.FC<LeaderBoardProps> = memo(({ onShare }) => {
   });
   const [isRequestedZalo, setIsRequestedZalo] = useState(false);
   const { appSettings } = useAppConfig();
-  const { user } = useRecoilValue(authenticationState);
   const { isCanPlay } = useRemainPlays();
   const { requestZaloPermissions } = useRequestZaloPermissions({
     cdpEventConfig: {
@@ -236,21 +234,22 @@ export const LeaderBoard: React.FC<LeaderBoardProps> = memo(({ onShare }) => {
 
   // Effects
   useEffect(() => {
-    if (!user?.phone) {
+    console.log("🚀 ~ useEffect ~ isRequestedZalo:", userInfo?.phoneNumber);
+    if (!userInfo?.phoneNumber && !window?.zma?.PREVIEW_MODE) {
       setMerryChristmasConfig((prev) => ({
         ...prev,
         isPhoneNumberAllowed: false,
       }));
     }
 
-    if (isRequestedZalo && user?.phone) {
+    if (isRequestedZalo && (userInfo?.phoneNumber || window?.zma?.PREVIEW_MODE)) {
       setMerryChristmasState((prev) => ({
         ...prev,
         currentScreen: SCREEN_KEYS.INSTRUCTIONS,
         isGameLoading: false,
       }));
     }
-  }, [isRequestedZalo, setMerryChristmasConfig, setMerryChristmasState, user]);
+  }, [isRequestedZalo, setMerryChristmasConfig, setMerryChristmasState, userInfo?.phoneNumber]);
 
   // Memos
   const [leaderBoardItems, myRankInfo] = useMemo(() => {

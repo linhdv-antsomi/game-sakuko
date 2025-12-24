@@ -4,5 +4,5 @@ export const SCREEN_KEYS = {
   PLAY_GAME: "play-game",
   RESULTS: "results",
   LEADER_BOARD: "leader-board",
-  GUIDE: "guide",
+  RESULT_FAILED: "result-failed",
 } as const;

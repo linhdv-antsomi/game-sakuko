@@ -149,7 +149,7 @@ export const Instructions: React.FC<InstructionsProps> = memo(() => {
   const { appSettings } = useAppConfig();
 
   const collectionItems: CollectionItem[] =
-    appSettings?.games?.merryChristmas?.collectionItems ||
+    appSettings?.games?.catchRewards?.collectionItems ||
     (COLLECTTIONS as CollectionItem[]);
 
   // Hooks

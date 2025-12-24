@@ -9,6 +9,7 @@ export const EVENT_CONFIG = {
   STAMP_COLLECTOR: "stamp_collector",
   CARD_FLIP: "card_flip",
   MERRY_CHRISTMAS: "merry_christmas",
+  CATCH_REWARDS: "catch_rewards",
 };
 
 export const PAGE_TYPE = {

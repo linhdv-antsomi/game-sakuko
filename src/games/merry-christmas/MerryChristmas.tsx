@@ -1,40 +1,54 @@
+// Libraries
 import React, { useCallback, useEffect, useMemo } from "react";
 import { useRecoilState, useResetRecoilState } from "recoil";
+import styled from "styled-components";
+import { AnimatePresence, motion, Transition } from "motion/react";
+import { useImmer } from "use-immer";
+import { EventName, events, openShareSheet } from "zmp-sdk/apis";
+import { useNavigate } from "react-router-dom";
+
+// States
 import { MerryChristmasScreen, merryChristmasState } from "./state";
+
+// Constants
 import { SCREEN_KEYS } from "./constants";
+import { APP_CONFIG, EVENT_CONFIG, PAGE_TYPE } from "constant";
+
+// Components
 import {
-  Guide,
   Instructions,
   LeaderBoard,
   MainMenu,
   PlayGame,
+  ResultFail,
   Results,
 } from "./screens";
-import styled from "styled-components";
-import { AnimatePresence, motion, Transition } from "motion/react";
+import {
+  SystemNotificationModal,
+  VolumeAudioControl,
+} from "components";
+import { Toast } from "@antscorp/ama-ui";
+
+// Hooks
 import {
   useAppConfig,
   // useNavigateWithSearch,
   useUserInfo,
 } from "hooks";
-import { Scores } from "./screens/PlayGame/types";
 import {
   useAllocateVoucherChristmas,
   useCheckCanShareGameChristmas,
   useShareGameChristmas,
 } from "queries";
-import { useImmer } from "use-immer";
+
+// Types
+import { Scores } from "./screens/PlayGame/types";
+
 // import * as Sentry from "sentry/react";
+
+// Utils
 import { audioManager, callCdpEvent } from "utils";
-import { APP_CONFIG, EVENT_CONFIG, PAGE_TYPE } from "constant";
-import {
-  SystemNotificationModal,
-  VolumeAudioControl,
-} from "components";
-import { EventName, events, openShareSheet } from "zmp-sdk/apis";
-import { Toast } from "@antscorp/ama-ui";
 import { bgChristmasMusic } from "./utils";
-import { useNavigate } from "react-router-dom";
 
 interface MerryChristmasProps {}
 
@@ -265,8 +279,8 @@ export const MerryChristmas: React.FC<MerryChristmasProps> = (props) => {
         }}
       />
     ),
-    [SCREEN_KEYS.GUIDE]: () => <Guide onShare={handleShare} />,
     [SCREEN_KEYS.RESULTS]: () => <Results onShare={handleShare} />,
+    [SCREEN_KEYS.RESULT_FAILED]: () => <ResultFail onShare={handleShare} />,
     [SCREEN_KEYS.LEADER_BOARD]: () => <LeaderBoard onShare={handleShare} />,
   } as const;
 
@@ -282,45 +296,45 @@ export const MerryChristmas: React.FC<MerryChristmasProps> = (props) => {
   }, [resetMerryChristmasState]);
 
   // Background music
-  useEffect(() => {
-    const gestureEvents = ["pointerdown", "touchstart", "click"];
+  // useEffect(() => {
+  //   const gestureEvents = ["pointerdown", "touchstart", "click"];
 
-    const initAudio = () => {
-      bgChristmasMusic.init();
-      bgChristmasMusic.play();
-      gestureEvents.forEach((e) => document.removeEventListener(e, initAudio));
-    };
+  //   const initAudio = () => {
+  //     bgChristmasMusic.init();
+  //     bgChristmasMusic.play();
+  //     gestureEvents.forEach((e) => document.removeEventListener(e, initAudio));
+  //   };
 
-    // Dùng cho cả iOS & Android
-    gestureEvents.forEach((e) =>
-      document.addEventListener(e, initAudio, { once: true })
-    );
+  //   // Dùng cho cả iOS & Android
+  //   gestureEvents.forEach((e) =>
+  //     document.addEventListener(e, initAudio, { once: true })
+  //   );
 
-    return () => {
-      gestureEvents.forEach((e) => document.removeEventListener(e, initAudio));
-      bgChristmasMusic.stop();
-    };
-  }, []);
+  //   return () => {
+  //     gestureEvents.forEach((e) => document.removeEventListener(e, initAudio));
+  //     bgChristmasMusic.stop();
+  //   };
+  // }, []);
 
-  useEffect(() => {
-    const onPause = () => {
-      if (audioManager.mutedByApp) return;
-      audioManager.muteAllByApp();
-    };
+  // useEffect(() => {
+  //   const onPause = () => {
+  //     if (audioManager.mutedByApp) return;
+  //     audioManager.muteAllByApp();
+  //   };
 
-    const onResume = () => {
-      if (!audioManager.mutedByApp) return;
-      audioManager.unmuteAllByApp();
-    };
+  //   const onResume = () => {
+  //     if (!audioManager.mutedByApp) return;
+  //     audioManager.unmuteAllByApp();
+  //   };
 
-    events.on(EventName.AppPaused, onPause);
-    events.on(EventName.AppResumed, onResume);
+  //   events.on(EventName.AppPaused, onPause);
+  //   events.on(EventName.AppResumed, onResume);
 
-    return () => {
-      events.off(EventName.AppPaused, onPause);
-      events.off(EventName.AppResumed, onResume);
-    };
-  }, []);
+  //   return () => {
+  //     events.off(EventName.AppPaused, onPause);
+  //     events.off(EventName.AppResumed, onResume);
+  //   };
+  // }, []);
 
   return (
     <MerryChristmasWrapper>
@@ -341,7 +355,7 @@ export const MerryChristmas: React.FC<MerryChristmasProps> = (props) => {
         </motion.div>
       </AnimatePresence>
 
-      <VolumeAudioControl />
+      {/* <VolumeAudioControl /> */}
 
       <SystemNotificationModal
         showCloseButton={false}

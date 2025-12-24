@@ -23,7 +23,6 @@ import { ButtonBox } from "../MainMenu";
 interface ResultsProps extends BaseScreen {}
 
 const Wrapper = styled(motion.div)`
-  font-family: "Barlow Condensed", "Barlow", sans-serif;
   background: url(${bgImage}) bottom center / cover no-repeat;
   width: 100%;
   height: 100vh;
@@ -47,22 +46,23 @@ const Content = styled(motion.div)`
     box-shadow: 0px 0px 3px 2px #ffffff4d inset;
     color: #ffffff;
     font-weight: 600;
-    font-size: 30px;
-    text-transform: capitalize;
-    padding: 16px 30px;
+    font-size: clamp(26px, 7vw, 32px);
+    line-height: 1.2;
+    text-transform: uppercase;
+    padding: 12px 0px;
     text-align: center;
-    letter-spacing: 2px;
   }
 
   .voucher {
     width: 100%;
     background: #ffffff;
     border-radius: 15px;
-    padding: 24px 28px;
+    padding: 24px 24px;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 18px;
+    box-shadow: 0px 4px 4px 0px #D97B9640, 0px 0px 1px 1px #D2D2D233 inset;
   }
   .voucher-text {
     font-size: 16px;
@@ -99,7 +99,8 @@ const Content = styled(motion.div)`
 
   .voucher-note {
     color: #777777;
-    font-size: 14px;
+    font-size: 13px;
+    text-align: center;
   }
 `;
 

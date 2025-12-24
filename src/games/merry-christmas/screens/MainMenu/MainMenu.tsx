@@ -64,7 +64,7 @@ const ButtonWrapper = styled.div`
   align-items: center;
   gap: 14px;
   flex: 0 0 auto;
-  padding-bottom: 6%;
+  padding-bottom: 5%;
 `;
 
 export const ButtonBox = styled(motion.button)`
@@ -96,6 +96,7 @@ const BtnPlay = styled(ButtonBox)`
   font-weight: 700;
   font-size: clamp(20px, 6vw, 28px);
   line-height: 22px;
+  position: relative;
 
   &.disabled {
     pointer-events: none;
@@ -155,6 +156,14 @@ const CheckboxStyled = styled(Checkbox)`
   .terms {
     display: contents;
   }
+`;
+
+const RemainPlays = styled.div`
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 1.2;
+  box-shadow: 0px 3px 3px 0px #d97b9666;
 `;
 
 const mainVariants = (index = 0) => ({
@@ -230,7 +239,6 @@ export const MainMenu: React.FC<MainMenuProps> = memo(({ onShare }) => {
 
       setMerryChristmas((prev) => ({
         ...prev,
-        currentScreen: SCREEN_KEYS.INSTRUCTIONS,
         isGameLoading: false,
       }));
     },
@@ -245,15 +253,26 @@ export const MainMenu: React.FC<MainMenuProps> = memo(({ onShare }) => {
   const { requestPermissionVisible, limitRequestVisible } = state;
   const { isAcceptRule } = merryChristmasConfig || {};
   const { termAndConditionTitle, termAndCondition } =
-    appSettings?.games?.merryChristmas || {};
+    appSettings?.games?.catchRewards || {};
   const { systemErrorMessages } = appSettings?.globals || {};
   const disablePlay = !isCanPlay || !isAcceptRule || isGameLoading;
 
   useEffect(() => {
-    if (!userInfo?.phoneNumber) {
+    if (!userInfo?.phoneNumber && !window?.zma?.PREVIEW_MODE) {
       setMerryChristmasConfig((prev) => ({
         ...prev,
         isPhoneNumberAllowed: false,
+      }));
+    }
+
+    if (
+      isRequestedZalo &&
+      (userInfo?.phoneNumber || window?.zma?.PREVIEW_MODE)
+    ) {
+      setMerryChristmas((prev) => ({
+        ...prev,
+        currentScreen: SCREEN_KEYS.INSTRUCTIONS,
+        isGameLoading: false,
       }));
     }
   }, [
@@ -302,12 +321,6 @@ export const MainMenu: React.FC<MainMenuProps> = memo(({ onShare }) => {
     [toggleTermAndConditionVisible]
   );
 
-  const handleViewAddTurn = useCallback(() => {
-    setMerryChristmas((prev) => ({
-      ...prev,
-      currentScreen: SCREEN_KEYS.GUIDE,
-    }));
-  }, [setMerryChristmas]);
   const handleViewLeaderboard = useCallback(() => {
     setMerryChristmas((prev) => ({
       ...prev,
@@ -370,6 +383,18 @@ export const MainMenu: React.FC<MainMenuProps> = memo(({ onShare }) => {
               disabled={disablePlay}
               onClick={onClickPlayGame}
             >
+              {isGameLoading && (
+                <SpinLoading
+                  color="white"
+                  style={{
+                    position: "absolute",
+                    top: "50%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
+                    "--size": "24px",
+                  }}
+                />
+              )}
               Tham gia
             </BtnPlay>
           </BtnPlayWrapper>
@@ -419,129 +444,8 @@ export const MainMenu: React.FC<MainMenuProps> = memo(({ onShare }) => {
             <img className="icon" src={iconShareImage} />
             <div>Chia sẻ với bạn bè</div>
           </BtnShare>
+          <RemainPlays>Số lượt chơi: {remainPlays}</RemainPlays>
         </ButtonWrapper>
-
-        {/* <BtnGift
-          className="absolute z-30 right-[4%] top-24"
-          variants={mainVariants(1)}
-          initial="initial"
-          animate="animate"
-          whileTap={{ filter: "brightness(0.7)", y: 2 }}
-          onClick={onClickRedirectVoucherList}
-        /> */}
-
-        {/* <div className="flex justify-center items-center w-full -mb-[16%] z-10">
-          <ChristmasLogo
-            className="h-[85%]"
-            variants={mainVariants(1)}
-            initial="initial"
-            animate="animate"
-            src={christmasImage}
-          />
-        </div> */}
-
-        {/* Bottom Buttons */}
-        {/* <ButtonWrapper className="pt-[16%]">
-          <div className="flex flex-col items-center gap-2 w-full pb-3 z-10">
-            <motion.div
-              className="w-full flex justify-center items-center"
-              variants={mainVariants(2)}
-              initial="initial"
-              animate="animate"
-            >
-              <BtnPlay
-                animate={
-                  disablePlay
-                    ? { opacity: 0.5, scale: 1 }
-                    : {
-                        opacity: [1, 0.9, 1],
-                        scale: [1, 1.08, 1],
-                        filter: [
-                          "brightness(1)",
-                          "brightness(1.3)",
-                          "brightness(1)",
-                        ],
-                      }
-                }
-                transition={{
-                  duration: 1.2,
-                  repeat: disablePlay ? 0 : Infinity,
-                  repeatType: "mirror",
-                  ease: "easeInOut",
-                }}
-                whileTap={{ filter: "brightness(0.7)", y: 2, scale: 1 }}
-                className={clsx({
-                  disabled: disablePlay,
-                })}
-                disabled={disablePlay}
-                onClick={onClickPlayGame}
-              >
-                {isGameLoading && <SpinLoading color="white" />}
-              </BtnPlay>
-            </motion.div>
-
-            <BtnBXH
-              variants={mainVariants(3)}
-              initial="initial"
-              animate="animate"
-              whileTap={{ filter: "brightness(0.7)", y: 2 }}
-              onClick={handleViewLeaderboard}
-            />
-
-            <div className="flex justify-center gap-5 w-full">
-              <BtnShare
-                variants={mainVariants(4)}
-                initial="initial"
-                animate="animate"
-                whileTap={{ filter: "brightness(0.7)", y: 2 }}
-                onClick={handleShare}
-              />
-              <BtnAddTurn
-                variants={mainVariants(4)}
-                initial="initial"
-                animate="animate"
-                whileTap={{ filter: "brightness(0.7)", y: 2 }}
-                onClick={handleViewAddTurn}
-              />
-            </div>
-
-            <ChildContainer
-              className="font-medium"
-              variants={mainVariants(5)}
-              initial="initial"
-              animate="animate"
-            >
-              <CheckboxStyled
-                checked={isAcceptRule}
-                onChange={(checked) =>
-                  setMerryChristmasConfig((prev) => ({
-                    ...prev,
-                    isAcceptRule: checked,
-                  }))
-                }
-                onClick={(e) => e.stopPropagation()}
-              >
-                Tôi xác nhận đọc hiểu, đồng ý với các
-                <div
-                  className="underline inline-block"
-                  onClick={onClickTermAndCondition}
-                >
-                  điều khoản và điều kiện
-                </div>{" "}
-                của chương trình
-              </CheckboxStyled>
-            </ChildContainer>
-
-            <ChildContainer
-              className="text-[12px] !rounded-md !py-1 font-medium"
-              variants={mainVariants(6)}
-              initial="initial"
-              animate="animate"
-            >
-              {`Bạn còn ${Math.max(remainPlays, 0)} lượt chơi ngày hôm nay`}
-            </ChildContainer>
-          </div>
-        </ButtonWrapper> */}
       </MainMenuWrapper>
 
       {/* Game Guide */}
