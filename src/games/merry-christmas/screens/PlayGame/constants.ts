@@ -1,5 +1,5 @@
 import { ItemType, Scores } from "./types";
-import { ChristmasItem, CollectionItem } from "schemas";
+import { CollectionItem } from "schemas";
 
 // Assets
 import item1Img from "assets/images/catch-rewards/item-1.webp";
@@ -15,7 +15,7 @@ import item8Img from "assets/images/catch-rewards/item-8.webp";
  * Create item types from collections
  */
 export const createItemTypesFromCollections = (
-  collections: ChristmasItem[] = []
+  collections: CollectionItem[] = []
 ): ItemType[] => {
   return collections.map((collection, index) => ({
     key: collection.id,
@@ -33,24 +33,10 @@ export const createItemTypesFromCollections = (
 };
 
 /**
- * Default item types (fallback if no collections)
- */
-// export const DEFAULT_ITEM_TYPES: readonly ItemType[] = Object.freeze([
-//   {
-//     key: "default-1",
-//     label: "Tia sáng",
-//     image: "",
-//     tint: "rgba(255, 215, 90, 0.35)",
-//     sizeRange: [46, 58],
-//     speedRange: [180, 260],
-//   },
-// ]);
-
-/**
  * Create initial score template from collections
  */
 export const createScoreTemplate = (
-  collections: ChristmasItem[] = []
+  collections: CollectionItem[] = []
 ): Scores => {
   const scores: Scores = {};
   collections.forEach((collection) => {
@@ -59,7 +45,7 @@ export const createScoreTemplate = (
   return scores;
 };
 
-export const getTotalScore = (scores: Scores, collections: ChristmasItem[]): number => {
+export const getTotalScore = (scores: Scores, collections: CollectionItem[]): number => {
   let total = 0;
 
   for (const item of collections) {

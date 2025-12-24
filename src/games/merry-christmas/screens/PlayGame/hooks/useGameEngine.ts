@@ -16,7 +16,7 @@ import {
   pickWeightedRandom,
 } from "../utils";
 import { FallingItem, GameStats, ItemType, Scores } from "../types";
-import { ChristmasItem } from "schemas";
+import { CollectionItem } from "schemas";
 import { useSoundEffect } from "hooks";
 
 // Assets
@@ -25,7 +25,7 @@ import errorSound from "assets/sound-effects/error.mp3";
 import burstLightImg from "assets/images/catch-rewards/burst-light.webp";
 
 interface UseGameEngineOptions {
-  collections?: ChristmasItem[];
+  collections?: CollectionItem[];
   startDelay?: number; // Delay in milliseconds before game starts
 }
 
@@ -103,7 +103,18 @@ export default function useGameEngine(
     let lastSpeedIncreaseTime: number = 0;
     let lastReportedTime: number = durationSeconds;
     let startTime: number = performance.now();
+    let isStunned = false;
+    let stunEndTime = 0;
     const scoresRef: Scores = { ...scoreTemplate };
+
+    /**
+     * Check if box is stunned
+     */
+    const checkStun = (now: number) => {
+      if (isStunned && now >= stunEndTime) {
+        isStunned = false;
+      }
+    };
 
     /**
      * Get game area bounding rectangle
@@ -147,7 +158,7 @@ export default function useGameEngine(
 
       // Nếu có chọn collection → ưu tiên weighted trong toàn bộ list
       if (weightedTable) {
-        const chosen = pickWeightedRandom(weightedTable); // ChristmasItem
+        const chosen = pickWeightedRandom(weightedTable); // CollectionItem
         const matched = itemTypes.find((t) => t.key === chosen.id);
         type = matched ?? itemTypes[0];
       } else {
@@ -225,10 +236,20 @@ export default function useGameEngine(
       const christmasItem = item.type as ItemType;
 
       // Play sparkle sound
-      if (christmasItem?.type === "minus-score") {
+      if (
+        christmasItem?.type === "minus-score" ||
+        christmasItem?.type === "stun"
+      ) {
         errorEffect.play();
       } else {
         sparkle.play();
+      }
+
+      if (isStunned && christmasItem.type !== "stun") {
+        // vẫn remove item nhưng không score
+        item.el.remove();
+        items.splice(index, 1);
+        return;
       }
 
       // Create +1 animation element
@@ -241,7 +262,10 @@ export default function useGameEngine(
             ? `+${christmasItem?.value}s`
             : christmasItem?.type === "plus-score"
             ? `+${christmasItem?.value}`
-            : `-${christmasItem?.value}`
+            : christmasItem?.type === "minus-score"
+            ? `-${christmasItem?.value}`
+            : christmasItem?.type === "stun"
+            ? `Choáng`: ""
         }</span>
       `;
       plusItem.className = `plus-one-animation plus-score`;
@@ -272,7 +296,7 @@ export default function useGameEngine(
 
           .burst-text {
             position: relative;
-            font-size: 22px;
+            font-size: 18px;
             font-weight: 700;
             color: #ee0000;
             z-index: 2;
@@ -281,16 +305,16 @@ export default function useGameEngine(
           /* Ánh sáng tỏa */
           .burst-light-image {
             position: absolute;
-            width: 90px;
-            height: 90px;
+            width: 80px;
+            height: 80px;
             max-width: max-content;
             z-index: 1;  
           }
 
           .burst-light {
             position: absolute;
-            width: 50px;
-            height: 50px;
+            width: 40px;
+            height: 40px;
             z-index: 1;
 
             /* Dạng sáng tròn vàng */
@@ -321,41 +345,16 @@ export default function useGameEngine(
             }
             100% {
               transform: translate3d(var(--x), var(--y), 0) translateY(-10px) scale(1);
-              opacity: 0;
+              opacity: 1;
             }
           }
         `;
-
-        // style.textContent = `
-        //   .collect-item {
-        //     position: absolute;
-        //     top: 0;
-        //     left: 0;
-        //     font-size: 28px;
-        //     font-weight: 900;
-        //     color: #ee0000;
-        //     pointer-events: none;
-        //     z-index: 10;
-        //     animation: plusItemFloat 0.6s ease-out forwards;
-        //   }
-
-        //   @keyframes plusItemFloat {
-        //     0% {
-        //       transform: translate3d(var(--x), var(--y), 0) translateY(0) scale(0.8);
-        //       opacity: 1;
-        //     }
-        //     100% {
-        //       transform: translate3d(var(--x), var(--y), 0) translateY(-40px) scale(1);
-        //       opacity: 0;
-        //     }
-        //   }
-        // `;
         document.head.appendChild(style);
       }
 
       // Set CSS variables for animation
       plusItem.style.setProperty("--x", `${item.x + item.size / 2}px`);
-      plusItem.style.setProperty("--y", `${item.y - item.size / 4}px`);
+      plusItem.style.setProperty("--y", `${item.y}px`);
 
       gameEl.appendChild(plusItem);
 
@@ -387,6 +386,12 @@ export default function useGameEngine(
       ) {
         durationSeconds += +christmasItem.value;
         // setTimeLeft((prev) => Math.max(0, prev + +christmasItem.value));
+      } else if (
+        christmasItem.type === "stun" &&
+        !isNaN(Number(christmasItem.value))
+      ) {
+        isStunned = true;
+        stunEndTime = performance.now() + Number(christmasItem.value) * 1000;
       }
     };
     /**
@@ -411,6 +416,10 @@ export default function useGameEngine(
       if (!isRunning || engineIdRef.current !== myEngineId) {
         return;
       }
+
+      checkStun(timestamp);
+      gameEl.classList.toggle("stunned", isStunned);
+      boxEl.classList.toggle("stunned", isStunned);
 
       const delta = timestamp - lastTimestamp;
       lastTimestamp = timestamp;
@@ -564,6 +573,9 @@ export default function useGameEngine(
       spawnInterval = GAME_CONFIG.SPAWN_INTERVAL_START;
       lastSpawn = startTime - spawnInterval;
 
+      isStunned = false;
+      stunEndTime = 0;
+
       const rect = getGameRect();
       moveBoxToClientX(rect.left + rect.width / 2);
 
@@ -588,7 +600,7 @@ export default function useGameEngine(
      * Handle pointer/touch movement
      */
     const handlePointer = (event: PointerEvent | TouchEvent): void => {
-      if (!isRunning) {
+      if (!isRunning || isStunned) {
         return;
       }
       const touch = "touches" in event ? event.touches[0] : null;
@@ -622,7 +634,7 @@ export default function useGameEngine(
      * Handle keyboard controls
      */
     const handleKeyboard = (event: KeyboardEvent): void => {
-      if (!isRunning) {
+      if (!isRunning || isStunned) {
         return;
       }
       const step = 24;

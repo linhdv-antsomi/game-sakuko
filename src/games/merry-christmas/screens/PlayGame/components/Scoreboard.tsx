@@ -2,14 +2,14 @@ import React from "react";
 import styled from "styled-components";
 import { createItemTypesFromCollections } from "../constants";
 import { Scores } from "../types";
-import { ChristmasItem } from "schemas";
+import { CollectionItem } from "schemas";
 
 import { ScoreTotal } from "./ScoreTotal";
 
 interface ScoreboardProps {
   scores: Scores;
   totalScore: number;
-  collections: ChristmasItem[];
+  collections: CollectionItem[];
   className?: string;
 }
 

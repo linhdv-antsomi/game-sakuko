@@ -2,6 +2,7 @@ import {PRIVACY_POLICY} from "./privacyPolicy";
 import {PROGRAM_RULES} from "./programeRules";
 
 export const APP_CONFIG = {
+  GAME_ID: 1,
   OA_ID: import.meta.env.VITE_OA_ID,
   SECRET_KEY: import.meta.env.VITE_SECRET_KEY,
   GOOGLE_MAP_API_KEY: import.meta.env.GOOGLE_MAP_API_KEY,

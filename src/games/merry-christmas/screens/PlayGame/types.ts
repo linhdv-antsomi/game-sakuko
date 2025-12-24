@@ -1,4 +1,4 @@
-import { ChristmasItem } from "schemas";
+import { CollectionItem } from "schemas";
 
 /**
  * Item type definition for falling objects
@@ -12,8 +12,8 @@ export interface ItemType {
   tint: string;
   sizeRange: [number, number];
   speedRange: [number, number];
-  type: ChristmasItem["type"];
-  value: ChristmasItem["value"];
+  type: CollectionItem["type"];
+  value: CollectionItem["value"];
 }
 
 /**

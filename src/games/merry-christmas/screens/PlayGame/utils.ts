@@ -1,4 +1,4 @@
-import { ChristmasItem } from "schemas";
+import { CollectionItem } from "schemas";
 import { BOX_CONFIG } from "./constants";
 
 /**
@@ -55,7 +55,7 @@ export const formatTime = (seconds: number): string => {
   return seconds.toFixed(1);
 };
 
-export function buildWeightedTable(items: ChristmasItem[]) {
+export function buildWeightedTable(items: CollectionItem[]) {
   let sum = 0;
   const table = items.map((item) => {
     sum += item.rateSpawn;

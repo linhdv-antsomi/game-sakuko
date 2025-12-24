@@ -235,9 +235,18 @@ export const Instructions: React.FC<InstructionsProps> = memo(() => {
           </ItemsWrapper>
           <BtnPlay
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1, transition: { delay: 1 } }}
+            animate={{
+              opacity: [1, 0.9, 1],
+              filter: ["brightness(1)", "brightness(1.3)", "brightness(1)"],
+            }}
+            transition={{
+              duration: 1.2,
+              repeat: Infinity,
+              repeatType: "mirror",
+              ease: "easeInOut",
+            }}
             exit={{ opacity: 0 }}
-            whileTap={{ filter: "brightness(0.7)", y: 2 }}
+            whileTap={{ filter: "brightness(0.7)", y: 2, scale: 1 }}
             onClick={onStart}
           >
             Bắt đầu ngay

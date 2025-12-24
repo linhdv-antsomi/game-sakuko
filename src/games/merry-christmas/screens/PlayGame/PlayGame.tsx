@@ -10,7 +10,7 @@ import { GAME_CONFIG, COLLECTTIONS } from "./constants";
 import useGameEngine from "./hooks/useGameEngine";
 import { Scores } from "./types";
 import countDownSound from "assets/sound-effects/countdown.mp3";
-import { ChristmasItem } from "schemas";
+import { CollectionItem } from "schemas";
 import { SCREEN_KEYS } from "../../constants";
 import { useRemainPlays } from "games/merry-christmas/hooks";
 
@@ -73,9 +73,9 @@ export const PlayGame: React.FC<PlayGameProps> = memo(({ onGameOver }) => {
 
   // Get collectionItems from app settings
   const { appSettings } = useAppConfig();
-  const collectionItems: ChristmasItem[] =
+  const collectionItems: CollectionItem[] =
     appSettings?.games?.catchRewards?.collectionItems ||
-    (COLLECTTIONS as ChristmasItem[]);
+    (COLLECTTIONS as CollectionItem[]);
   const {
     timeDelayShowResult = APP_CONFIG.GAMES.MERRY_CHRISTMAS.TIME_DELAY_SHOW_GIFT,
   } = appSettings?.games?.catchRewards || {};
