@@ -26,7 +26,7 @@ import {
 } from "hooks";
 import { authenticationState } from "state";
 import { useRemainPlays } from "../../hooks";
-import { useGetLeaderBoardChristmas } from "queries";
+import { useGetCanPlay, useGetLeaderBoard } from "queries";
 import { SystemNotificationModal } from "components";
 import { Button } from "@antscorp/ama-ui";
 import { closeApp } from "zmp-sdk/apis";
@@ -162,13 +162,13 @@ export const LeaderBoard: React.FC<LeaderBoardProps> = memo(({ onShare }) => {
   const [christmasState, setMerryChristmasState] =
     useRecoilState(merryChristmasState);
   const { userInfo } = useUserInfo();
-  const { data: leaderBoardData } = useGetLeaderBoardChristmas({
+  const { data: leaderBoardData } = useGetLeaderBoard({
     options: {
       refetchOnMount: "always",
     },
   });
   const [merryChristmasConfig, setMerryChristmasConfig] = useLocalStorage(
-    LOCAL_STORAGE_KEY.MERRY_CHRISTMAS,
+    APP_CONFIG.GAME_ID,
     {
       isAcceptRule: false,
       isPhoneNumberAllowed: false,
@@ -181,10 +181,10 @@ export const LeaderBoard: React.FC<LeaderBoardProps> = memo(({ onShare }) => {
   });
   const [isRequestedZalo, setIsRequestedZalo] = useState(false);
   const { appSettings } = useAppConfig();
-  const { isCanPlay } = useRemainPlays();
+  const { data: canPlayData } = useGetCanPlay();
   const { requestZaloPermissions } = useRequestZaloPermissions({
     cdpEventConfig: {
-      pageCate: EVENT_CONFIG.MERRY_CHRISTMAS,
+      pageCate: EVENT_CONFIG.CATCH_REWARDS,
     },
     onFail({ step, message, error }) {
       if (["flowOA", "allowPhone"].includes(step)) {
@@ -225,11 +225,12 @@ export const LeaderBoard: React.FC<LeaderBoardProps> = memo(({ onShare }) => {
   const { isAcceptRule = false } = merryChristmasConfig;
   const { requestPermissionVisible, limitRequestVisible } = state;
   const { systemErrorMessages } = appSettings?.globals || {};
+  const { canPlay } = canPlayData?.data || {};
 
   // Trackings
   useViewPage({
     pageType: PAGE_TYPE.LEADER_BOARD,
-    pageCate: EVENT_CONFIG.MERRY_CHRISTMAS,
+    pageCate: EVENT_CONFIG.CATCH_REWARDS,
   });
 
   // Effects
@@ -242,32 +243,40 @@ export const LeaderBoard: React.FC<LeaderBoardProps> = memo(({ onShare }) => {
       }));
     }
 
-    if (isRequestedZalo && (userInfo?.phoneNumber || window?.zma?.PREVIEW_MODE)) {
+    if (
+      isRequestedZalo &&
+      (userInfo?.phoneNumber || window?.zma?.PREVIEW_MODE)
+    ) {
       setMerryChristmasState((prev) => ({
         ...prev,
         currentScreen: SCREEN_KEYS.INSTRUCTIONS,
         isGameLoading: false,
       }));
     }
-  }, [isRequestedZalo, setMerryChristmasConfig, setMerryChristmasState, userInfo?.phoneNumber]);
+  }, [
+    isRequestedZalo,
+    setMerryChristmasConfig,
+    setMerryChristmasState,
+    userInfo?.phoneNumber,
+  ]);
 
   // Memos
   const [leaderBoardItems, myRankInfo] = useMemo(() => {
-    let myRank;
-    const arrRankData = leaderBoardData?.data || [];
+    const myRank = leaderBoardData?.data?.userRank;
+    const arrRankData = leaderBoardData?.data?.leaderboard || [];
     const arrRankSorted = arrRankData
       .sort((a, b) => a.rank - b.rank)
       .slice(0, 3);
 
-    if (Array.isArray(arrRankData) && userInfo?.id) {
-      myRank = arrRankData.find((item) => item.userId === userInfo?.id);
-    }
+    // if (Array.isArray(arrRankData) && userInfo?.id) {
+    //   myRank = arrRankData.find((item) => item.userId === userInfo?.id);
+    // }
     return [arrRankSorted, myRank];
-  }, [leaderBoardData, userInfo?.id]);
+  }, [leaderBoardData]);
 
   // Handlers
   const onClickPlayGame = useCallback(() => {
-    if (!isAcceptRule || !isCanPlay) {
+    if (!isAcceptRule || !canPlay) {
       setMerryChristmasState((prev) => ({
         ...prev,
         currentScreen: SCREEN_KEYS.MAIN_MENU,
@@ -276,13 +285,13 @@ export const LeaderBoard: React.FC<LeaderBoardProps> = memo(({ onShare }) => {
     }
 
     requestZaloPermissions();
-  }, [requestZaloPermissions, setMerryChristmasState, isAcceptRule, isCanPlay]);
+  }, [requestZaloPermissions, setMerryChristmasState, isAcceptRule, canPlay]);
 
   const handleShare = useCallback(() => {
     if (onShare) {
       onShare({
         pageType: PAGE_TYPE.LEADER_BOARD,
-        pageCate: EVENT_CONFIG.MERRY_CHRISTMAS,
+        pageCate: EVENT_CONFIG.CATCH_REWARDS,
       });
     }
   }, [onShare]);

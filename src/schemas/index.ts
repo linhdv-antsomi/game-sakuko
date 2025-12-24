@@ -15,3 +15,4 @@ export * from "./Authentication";
 export * from "./CardFlip";
 export * from "./MerryChristmas";
 export * from "./Collections";
+export * from "./Gamification";

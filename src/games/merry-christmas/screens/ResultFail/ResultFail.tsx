@@ -18,7 +18,7 @@ import {
 import { BaseScreen } from "games/merry-christmas/types";
 
 // Hooks
-import { useNavigateWithSearch } from "hooks";
+import { useNavigateWithSearch, useViewPage } from "hooks";
 
 // Components
 import { ButtonBox } from "../MainMenu";
@@ -202,6 +202,12 @@ export const ResultFail: React.FC<ResultFailProps> = memo(({ onShare }) => {
     useRecoilState(merryChristmasState);
   const navigate = useNavigateWithSearch();
 
+  // Trackings
+  useViewPage({
+    pageType: PAGE_TYPE.RESULT_FAILED,
+    pageCate: EVENT_CONFIG.CATCH_REWARDS,
+  });
+
   const goChampion = () => {
     setMerryChristmas((prev) => ({
       ...merryChristmasStateDefault,
@@ -211,18 +217,22 @@ export const ResultFail: React.FC<ResultFailProps> = memo(({ onShare }) => {
   };
 
   const onClickRedirectVoucherList = useCallback(() => {
-    navigate("/gift", {
-      newParams: {
-        tab: "redeemed",
-        voucherType: "voucher",
-      },
-    });
+    if (typeof window?.zma?.navigateVoucherList === "function") {
+      window.zma.navigateVoucherList();
+    } else {
+      navigate("/gift", {
+        newParams: {
+          tab: "redeemed",
+          voucherType: "voucher",
+        },
+      });
+    }
   }, [navigate]);
 
   const handleShare = useCallback(() => {
     onShare?.({
       pageCate: EVENT_CONFIG.CATCH_REWARDS,
-      pageType: PAGE_TYPE.GIFT_CODE,
+      pageType: PAGE_TYPE.RESULT_FAILED,
     });
   }, [onShare]);
 

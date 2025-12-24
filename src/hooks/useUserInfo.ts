@@ -35,7 +35,7 @@ export const useUserInfo = (props?: UserInfoProps) => {
   const { appSettings } = useAppConfig();
 
   // Variables
-  const phoneNumber = formatVietnamesePhoneNumber(user?.phone || "");
+  const phoneNumber = formatVietnamesePhoneNumber(window?.zma?.getPhone() || "");
   const { tierList = Object.values(TIER) } =
     appSettings?.globals?.loyalty || {};
 

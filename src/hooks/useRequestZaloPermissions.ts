@@ -47,7 +47,7 @@ export const useRequestZaloPermissions = (
 
   // Hooks & State
   const queryClient = useQueryClient();
-  const [config, setConfig] = useLocalStorage(LOCAL_STORAGE_KEY.CONFIG, {
+  const [config, setConfig] = useLocalStorage(APP_CONFIG.GAME_ID, {
     isAcceptRule: false,
     isPhoneNumberAllowed: false,
     lastIdentifyDate: "",
@@ -190,7 +190,8 @@ export const useRequestZaloPermissions = (
 
     // If OA not followed, request to follow then continue flow
     if (!requestedUserInfo.followedOA) {
-      await followOA({
+      const followOAZalo = typeof window?.zma?.followOA === "function" ? window?.zma?.followOA : followOA;
+      await followOAZalo({
         id: APP_CONFIG.OA_ID,
         async success() {
           // Call CDP event for following OA

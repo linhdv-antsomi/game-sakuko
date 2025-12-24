@@ -1,4 +1,4 @@
-import { AllocateVoucher } from "schemas";
+import { PlayGameResponse } from "schemas";
 import { SCREEN_KEYS } from "./constants";
 import { atom } from "recoil";
 import { Scores } from "./screens/PlayGame/types";
@@ -12,7 +12,7 @@ type MerryChristmasStateType = {
   isAllocatingCode?: boolean;
   isPlaying?: boolean;
   showResultsScreen?: boolean;
-  allocateVoucher?: AllocateVoucher;
+  allocateVoucher?: PlayGameResponse;
   scores?: Scores;
   totalScore?: number;
 };

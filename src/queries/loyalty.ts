@@ -129,7 +129,7 @@ export const useGetLoyaltyCustomerDetail = ({
 }: UseGetLoyaltyCustomerDetailProps) => {
   return useQuery({
     queryKey: [QUERY_KEY.GET_LOYALTY_CUSTOMER_DETAIL, args],
-    queryFn: () => loyaltyServices.getLoyaltyCustomerDetail(args),
+    queryFn: () => typeof window?.zma?.getLoyaltyCustomerDetail === "function" ? window?.zma?.getLoyaltyCustomerDetail(args) : loyaltyServices.getLoyaltyCustomerDetail(args),
     ...options,
   });
 };

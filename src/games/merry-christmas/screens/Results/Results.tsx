@@ -13,12 +13,13 @@ import Barcode from "react-barcode";
 import { Check, Copy } from "lucide-react";
 import { copyToClipboard } from "utils";
 import { Toast } from "@antscorp/ama-ui";
-import { useNavigateWithSearch } from "hooks";
+import { useNavigateWithSearch, useViewPage } from "hooks";
 import { useRemainPlays } from "../../hooks";
 import { SCREEN_KEYS } from "../../constants";
 import { BaseScreen } from "../../types";
 import { EVENT_CONFIG, PAGE_TYPE } from "constant";
 import { ButtonBox } from "../MainMenu";
+import { useGetCanPlay } from "queries";
 
 interface ResultsProps extends BaseScreen {}
 
@@ -62,7 +63,7 @@ const Content = styled(motion.div)`
     flex-direction: column;
     align-items: center;
     gap: 18px;
-    box-shadow: 0px 4px 4px 0px #D97B9640, 0px 0px 1px 1px #D2D2D233 inset;
+    box-shadow: 0px 4px 4px 0px #d97b9640, 0px 0px 1px 1px #d2d2d233 inset;
   }
   .voucher-text {
     font-size: 16px;
@@ -193,11 +194,18 @@ export const Results: React.FC<ResultsProps> = memo(({ onShare }) => {
     setMerryChristmas,
   ] = useRecoilState(merryChristmasState);
   const navigate = useNavigateWithSearch();
-  const { isCanPlay } = useRemainPlays();
+  const { data: canPlayData } = useGetCanPlay();
 
   // Variables
   const { name, result_title, promotion_code, result_description } =
-    allocateVoucher?.webContents.contents || {};
+    allocateVoucher?.reward?.metadata || {};
+  const { canPlay } = canPlayData?.data || {};
+
+  // Trackings
+  useViewPage({
+    pageType: PAGE_TYPE.RESULT_SUCCESS,
+    pageCate: EVENT_CONFIG.CATCH_REWARDS,
+  });
 
   const onClickCopyCode = useCallback(() => {
     if (promotion_code) {
@@ -221,7 +229,7 @@ export const Results: React.FC<ResultsProps> = memo(({ onShare }) => {
   }, [promotion_code]);
 
   const handleContinuePlay = useCallback(() => {
-    if (!isCanPlay) {
+    if (!canPlay) {
       setMerryChristmas((prev) => ({
         ...merryChristmasStateDefault,
         prevState: prev.currentScreen,
@@ -235,7 +243,7 @@ export const Results: React.FC<ResultsProps> = memo(({ onShare }) => {
       prevState: prev.currentScreen,
       currentScreen: SCREEN_KEYS.INSTRUCTIONS,
     }));
-  }, [isCanPlay, setMerryChristmas]);
+  }, [canPlay, setMerryChristmas]);
 
   const goChampion = () => {
     setMerryChristmas((prev) => ({
@@ -246,18 +254,22 @@ export const Results: React.FC<ResultsProps> = memo(({ onShare }) => {
   };
 
   const onClickRedirectVoucherList = useCallback(() => {
-    navigate("/gift", {
-      newParams: {
-        tab: "redeemed",
-        voucherType: "voucher",
-      },
-    });
+    if (typeof window?.zma?.navigateVoucherList === "function") {
+      window.zma.navigateVoucherList();
+    } else {
+      navigate("/gift", {
+        newParams: {
+          tab: "redeemed",
+          voucherType: "voucher",
+        },
+      });
+    }
   }, [navigate]);
 
   const handleShare = useCallback(() => {
     onShare?.({
-      pageCate: EVENT_CONFIG.MERRY_CHRISTMAS,
-      pageType: PAGE_TYPE.GIFT_CODE,
+      pageCate: EVENT_CONFIG.CATCH_REWARDS,
+      pageType: PAGE_TYPE.RESULT_SUCCESS,
     });
   }, [onShare]);
 

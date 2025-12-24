@@ -23,10 +23,7 @@ import {
   ResultFail,
   Results,
 } from "./screens";
-import {
-  SystemNotificationModal,
-  VolumeAudioControl,
-} from "components";
+import { SystemNotificationModal, VolumeAudioControl } from "components";
 import { Toast } from "@antscorp/ama-ui";
 
 // Hooks
@@ -36,9 +33,11 @@ import {
   useUserInfo,
 } from "hooks";
 import {
-  useAllocateVoucherChristmas,
-  useCheckCanShareGameChristmas,
-  useShareGameChristmas,
+  useCheckin,
+  useGetCanShare,
+  useGetGameDetail,
+  usePlayGame,
+  useShareGame,
 } from "queries";
 
 // Types
@@ -53,7 +52,7 @@ import { bgChristmasMusic } from "./utils";
 interface MerryChristmasProps {}
 
 export const MerryChristmasWrapper = styled.div`
-  --color-background-game: #FFD1E8;
+  --color-background-game: #ffd1e8;
   --header-padding-top: calc(var(--zaui-safe-area-inset-top, 24px));
 
   width: 100%;
@@ -89,8 +88,10 @@ export const MerryChristmas: React.FC<MerryChristmasProps> = (props) => {
   const resetMerryChristmasState = useResetRecoilState(merryChristmasState);
   const { userInfo } = useUserInfo();
   const { appSettings } = useAppConfig();
-  const { data: canShareGameData } = useCheckCanShareGameChristmas();
-  const { mutateAsync: shareGame } = useShareGameChristmas({
+  const { data: gameDetail } = useGetGameDetail();
+  const { data: canShareGameData } = useGetCanShare();
+  const { mutateAsync: checkin } = useCheckin();
+  const { mutateAsync: shareGame } = useShareGame({
     options: {
       onSuccess({ code, errorCode }) {
         // If the code is not 200, it means that the voucher is out of stock
@@ -113,16 +114,23 @@ export const MerryChristmas: React.FC<MerryChristmasProps> = (props) => {
 
   // Variables
   const { shareTitle, shareDescription, shareThumbnail, sharePath } =
-    appSettings?.games?.catchRewards || {};
+    gameDetail?.data?.metadata || {};
   const { systemErrorMessages } = appSettings?.globals || {};
   const { currentScreen, isAllocatingCode } = christmasState;
   const { isOutOfVoucher } = state;
 
-  const { mutateAsync: allocateVoucher } = useAllocateVoucherChristmas({
+  const { mutateAsync: allocateVoucher } = usePlayGame({
     options: {
-      onSuccess({ code }) {
+      onSuccess({
+        code,
+        data: {
+          reward: {
+            metadata: { promotion_code },
+          },
+        },
+      }) {
         // If the code is not 200, it means that the voucher is out of stock
-        if (code !== 200) {
+        if (code !== 200 || (code === 200 && !promotion_code)) {
           setTimeout(() => {
             setState((draft) => {
               draft.isOutOfVoucher = true;
@@ -150,13 +158,12 @@ export const MerryChristmas: React.FC<MerryChristmasProps> = (props) => {
       try {
         const { data } =
           (await allocateVoucher({
-            // phoneNumber: userInfo?.phoneNumber,
             bodyData: {
               phoneNumber: userInfo.phoneNumber,
               customerId: userInfo.customerId,
               userName: userInfo.name || "",
               extra: {
-                score: totalScore,
+                point: totalScore,
                 collectedItems: scores,
               },
             },
@@ -164,7 +171,7 @@ export const MerryChristmas: React.FC<MerryChristmasProps> = (props) => {
 
         // Sentry capture
         // Sentry.captureMessage(
-        //   "[Christmas][Allocate Voucher] Allocate voucher request",
+        //   "[Catch Rewards][Allocate Voucher] Allocate voucher request",
         //   {
         //     level: "info",
         //     extra: {
@@ -174,9 +181,9 @@ export const MerryChristmas: React.FC<MerryChristmasProps> = (props) => {
         //   }
         // );
 
-        if (data.webContents) {
+        if (data?.reward) {
           const { globalTracking, promotion_code } =
-            data.webContents.contents || {};
+            data?.reward?.metadata || {};
 
           // Call Global Tracking Event
           fetch(globalTracking?.impression);
@@ -186,7 +193,7 @@ export const MerryChristmas: React.FC<MerryChristmasProps> = (props) => {
           callCdpEvent({
             data: {
               page_type: PAGE_TYPE.GIFT_CODE,
-              page_cate: EVENT_CONFIG.MERRY_CHRISTMAS,
+              page_cate: EVENT_CONFIG.CATCH_REWARDS,
             },
             dims: {
               promotion_code: {
@@ -198,13 +205,10 @@ export const MerryChristmas: React.FC<MerryChristmasProps> = (props) => {
 
           setMerryChristmasState((prev) => ({
             ...prev,
-            // gameState: GAME_STATE.VOUCHER,
             allocateVoucher: data,
             isAllocatingCode: false,
           }));
         }
-
-        // Allocate voucher
       } catch (error) {
         console.error(error);
       }
@@ -212,18 +216,29 @@ export const MerryChristmas: React.FC<MerryChristmasProps> = (props) => {
     [isAllocatingCode, userInfo, setMerryChristmasState, allocateVoucher]
   );
 
-  const handleShare = async ({pageType = PAGE_TYPE.HOME, pageCate = EVENT_CONFIG.MERRY_CHRISTMAS} : {pageType?: string, pageCate?: string}) => {
+  const handleShare = async ({
+    pageType = PAGE_TYPE.HOME,
+    pageCate = EVENT_CONFIG.CATCH_REWARDS,
+  }: {
+    pageType?: string;
+    pageCate?: string;
+  }) => {
+    const openShareZalo =
+      typeof window?.zma?.openShareSheet === "function"
+        ? window?.zma?.openShareSheet
+        : openShareSheet;
+
     const { numberOfUser, shareType, status } =
-      (await openShareSheet({
+      (await openShareZalo({
         type: "zmp_deep_link",
         data: {
-          title: shareTitle || APP_CONFIG.GAMES.MERRY_CHRISTMAS.SHARE_TITLE,
+          title: shareTitle || APP_CONFIG.GAMES.CATCH_REWARDS.SHARE_TITLE,
           description:
             shareDescription ||
-            APP_CONFIG.GAMES.MERRY_CHRISTMAS.SHARE_DESCRIPTION,
+            APP_CONFIG.GAMES.CATCH_REWARDS.SHARE_DESCRIPTION,
           thumbnail:
-            shareThumbnail || APP_CONFIG.GAMES.MERRY_CHRISTMAS.SHARE_THUMBNAIL,
-          path: sharePath || APP_CONFIG.GAMES.MERRY_CHRISTMAS.SHARE_PATH,
+            shareThumbnail || APP_CONFIG.GAMES.CATCH_REWARDS.SHARE_THUMBNAIL,
+          path: sharePath || APP_CONFIG.GAMES.CATCH_REWARDS.SHARE_PATH,
         },
       })) || {};
 
@@ -260,25 +275,18 @@ export const MerryChristmas: React.FC<MerryChristmasProps> = (props) => {
     }
   };
 
+  const handleGameOver = (scores: Scores, totalScore: number) => {
+    handleAllocateVoucher(scores, totalScore);
+  };
+
   /**
    * Screen configuration with component mapping
    * Add new screens here to register them
    */
   const SCREENS: Record<MerryChristmasScreen, React.ComponentType> = {
     [SCREEN_KEYS.MAIN_MENU]: () => <MainMenu onShare={handleShare} />,
-    [SCREEN_KEYS.INSTRUCTIONS]: Instructions,
-    [SCREEN_KEYS.PLAY_GAME]: (props) => (
-      <PlayGame
-        {...props}
-        onGameOver={(scores, totalScore) => {
-          handleAllocateVoucher(scores, totalScore);
-          // setMerryChristmasState((prev) => ({
-          //   ...prev,
-          //   currentScreen: SCREEN_KEYS.RESULTS,
-          // }));
-        }}
-      />
-    ),
+    [SCREEN_KEYS.INSTRUCTIONS]: () => <Instructions />,
+    [SCREEN_KEYS.PLAY_GAME]: () => <PlayGame onGameOver={handleGameOver} />,
     [SCREEN_KEYS.RESULTS]: () => <Results onShare={handleShare} />,
     [SCREEN_KEYS.RESULT_FAILED]: () => <ResultFail onShare={handleShare} />,
     [SCREEN_KEYS.LEADER_BOARD]: () => <LeaderBoard onShare={handleShare} />,
@@ -286,8 +294,14 @@ export const MerryChristmas: React.FC<MerryChristmasProps> = (props) => {
 
   // Get the current screen component
   const CurrentScreenComponent = useMemo(() => {
+    console.log("currentScreen", currentScreen);
     return SCREENS[currentScreen] || SCREENS["main-menu"];
   }, [currentScreen]);
+
+  // CHECKIN
+  useEffect(() => {
+    checkin();
+  }, []);
 
   useEffect(() => {
     return () => {

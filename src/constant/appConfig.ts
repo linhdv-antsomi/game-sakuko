@@ -2,7 +2,7 @@ import {PRIVACY_POLICY} from "./privacyPolicy";
 import {PROGRAM_RULES} from "./programeRules";
 
 export const APP_CONFIG = {
-  GAME_ID: 1,
+  GAME_ID: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
   OA_ID: import.meta.env.VITE_OA_ID,
   SECRET_KEY: import.meta.env.VITE_SECRET_KEY,
   GOOGLE_MAP_API_KEY: import.meta.env.GOOGLE_MAP_API_KEY,
@@ -19,6 +19,7 @@ export const APP_CONFIG = {
   VOUCHER_DETAIL_BAR_WIDTH: 2,
   VOUCHER_GIFT_BAR_WIDTH: 2,
   SYSTEM_ERROR_MESSAGES: {
+    catchRewardsEnd: `Chương trình “Hứng Quà Nhật - Rinh Deal Chất” đã kết thúc. Hẹn bạn ở các hoạt động thú vị khác trong tương lai nhé!`,
     cardFlipEnd: `Chương trình “LẬT THẺ BÀI ĐAN LÁT – 100% NHẬN QUÀ TẶNG” đã kết thúc. Hẹn bạn ở các hoạt động thú vị khác trong tương lai nhé!`,
     merryChristmasEnd: `Chương trình “VUI GIÁNG SINH – RINH QUÀ TẶNG” đã kết thúc. Hẹn bạn ở các hoạt động thú vị khác trong tương lai nhé!`,
     requestPermission: `Bạn ơi, đồng ý Follow OA Aristino và chia sẻ số điện thoại với chúng mình nhé. <br /> <br /> Đây là điều kiện cần để Aristino xác nhận việc đăng ký tham gia trò chơi và gửi bạn các thông tin về quà tặng của chương trình.`,
@@ -201,6 +202,7 @@ export const APP_CONFIG = {
       START_DATE: "2025-12-03 00:00:00",
       END_DATE: "2025-12-30 23:59:59",
       TIME_DELAY_SHOW_GIFT: 1000,
+      MIN_SCORE_TO_CLAIM_REWARD: 300,
       REQUEST_PERMISSION_MSG: `Bạn ơi, đồng ý Follow OA Aristino và chia sẻ số điện thoại với
           chúng mình nhé. <br /> Đây là điều kiện cần để Aristino xác nhận việc đăng ký tham gia trò
           chơi game và gửi bạn các thông tin về quà

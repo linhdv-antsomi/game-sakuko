@@ -19,7 +19,6 @@ import {
 } from "constant";
 import { useRecoilState } from "recoil";
 import { merryChristmasState } from "../../state";
-import { useRemainPlays } from "../../hooks";
 import {
   useAppConfig,
   useNavigateWithSearch,
@@ -32,6 +31,8 @@ import { SystemNotificationModal, TermAndConditionSheet } from "components";
 import { closeApp } from "zmp-sdk/apis";
 import clsx from "clsx";
 import { BaseScreen } from "../../types";
+import { useGetCanPlay, useGetGameDetail } from "queries";
+import dayjs from "dayjs";
 
 interface MainMenuProps extends BaseScreen {}
 
@@ -188,7 +189,7 @@ export const MainMenu: React.FC<MainMenuProps> = memo(({ onShare }) => {
     limitRequestVisible: false,
   });
   const [merryChristmasConfig, setMerryChristmasConfig] = useLocalStorage(
-    LOCAL_STORAGE_KEY.MERRY_CHRISTMAS,
+    APP_CONFIG.GAME_ID,
     {
       isAcceptRule: false,
       isPhoneNumberAllowed: false,
@@ -200,19 +201,20 @@ export const MainMenu: React.FC<MainMenuProps> = memo(({ onShare }) => {
 
   // Hooks
   const { userInfo } = useUserInfo();
-  const { remainPlays, isCanPlay } = useRemainPlays();
+  const { data: gameDetailData } = useGetGameDetail();
+  const { data: canPlayData } = useGetCanPlay();
   const navigate = useNavigateWithSearch();
-  const { appSettings, gameValidation, isCatchRewardsValid } = useAppConfig();
+  const { appSettings } = useAppConfig();
   const [isRequestedZalo, setIsRequestedZalo] = useState(false);
   const [termAndConditionVisible, toggleTermAndConditionVisible] =
     useToggle(false);
   const [requestTermVisible, toggleRequestTermVisible] = useToggle(false);
   const { requestZaloPermissions } = useRequestZaloPermissions({
     cdpEventConfig: {
-      pageCate: EVENT_CONFIG.MERRY_CHRISTMAS,
+      pageCate: EVENT_CONFIG.CATCH_REWARDS,
     },
     onFail({ step, message, error }) {
-      console.log("request permission fail");
+      console.log("request permission fail", { step, message, error });
       if (["flowOA", "allowPhone"].includes(step)) {
         setState((draft) => {
           draft.requestPermissionVisible = true;
@@ -246,16 +248,23 @@ export const MainMenu: React.FC<MainMenuProps> = memo(({ onShare }) => {
 
   useViewPage({
     pageType: PAGE_TYPE.HOME,
-    pageCate: EVENT_CONFIG.MERRY_CHRISTMAS,
+    pageCate: EVENT_CONFIG.CATCH_REWARDS,
   });
 
   // Variables
+  const { canPlay, remainingTurns = 0 } = canPlayData?.data || {};
+  const {
+    startAt = APP_CONFIG.GAMES.CATCH_REWARDS.START_DATE,
+    endAt = APP_CONFIG.GAMES.CATCH_REWARDS.END_DATE,
+    metadata,
+  } = gameDetailData?.data || {};
+  const isCatchRewardsValid =
+    dayjs().isBefore(dayjs(endAt)) && dayjs().isAfter(dayjs(startAt));
   const { requestPermissionVisible, limitRequestVisible } = state;
   const { isAcceptRule } = merryChristmasConfig || {};
-  const { termAndConditionTitle, termAndCondition } =
-    appSettings?.games?.catchRewards || {};
+  const { termAndConditionTitle, termAndCondition } = metadata || {};
   const { systemErrorMessages } = appSettings?.globals || {};
-  const disablePlay = !isCanPlay || !isAcceptRule || isGameLoading;
+  const disablePlay = !canPlay || !isAcceptRule || isGameLoading;
 
   useEffect(() => {
     if (!userInfo?.phoneNumber && !window?.zma?.PREVIEW_MODE) {
@@ -283,12 +292,16 @@ export const MainMenu: React.FC<MainMenuProps> = memo(({ onShare }) => {
   ]);
 
   const onClickRedirectVoucherList = useCallback(() => {
-    navigate("/gift", {
-      newParams: {
-        tab: "redeemed",
-        voucherType: "voucher",
-      },
-    });
+    if (typeof window?.zma?.navigateVoucherList === "function") {
+      window.zma.navigateVoucherList();
+    } else {
+      navigate("/gift", {
+        newParams: {
+          tab: "redeemed",
+          voucherType: "voucher",
+        },
+      });
+    }
   }, [navigate]);
 
   // Handlers
@@ -330,7 +343,7 @@ export const MainMenu: React.FC<MainMenuProps> = memo(({ onShare }) => {
   const handleShare = useCallback(() => {
     if (onShare) {
       onShare({
-        pageCate: EVENT_CONFIG.MERRY_CHRISTMAS,
+        pageCate: EVENT_CONFIG.CATCH_REWARDS,
         pageType: PAGE_TYPE.HOME,
       });
     }
@@ -444,7 +457,7 @@ export const MainMenu: React.FC<MainMenuProps> = memo(({ onShare }) => {
             <img className="icon" src={iconShareImage} />
             <div>Chia sẻ với bạn bè</div>
           </BtnShare>
-          <RemainPlays>Số lượt chơi: {remainPlays}</RemainPlays>
+          <RemainPlays>Số lượt chơi: {remainingTurns}</RemainPlays>
         </ButtonWrapper>
       </MainMenuWrapper>
 
@@ -453,7 +466,7 @@ export const MainMenu: React.FC<MainMenuProps> = memo(({ onShare }) => {
         visible={termAndConditionVisible}
         title={
           termAndConditionTitle ||
-          APP_CONFIG.GAMES.MERRY_CHRISTMAS.TERM_AND_CONDITION_TITLE
+          APP_CONFIG.GAMES.CATCH_REWARDS.TERM_AND_CONDITION_TITLE
         }
         showCloseButton={false}
         onClose={(e) => {
@@ -465,7 +478,7 @@ export const MainMenu: React.FC<MainMenuProps> = memo(({ onShare }) => {
           dangerouslySetInnerHTML={{
             __html:
               termAndCondition ||
-              APP_CONFIG.GAMES.MERRY_CHRISTMAS.TERM_AND_CONDITION,
+              APP_CONFIG.GAMES.CATCH_REWARDS.TERM_AND_CONDITION,
           }}
         ></div>
       </TermAndConditionSheet>
@@ -530,8 +543,8 @@ export const MainMenu: React.FC<MainMenuProps> = memo(({ onShare }) => {
         visible={!isCatchRewardsValid}
         title="Thông báo"
         description={
-          systemErrorMessages?.merryChristmasEnd ||
-          APP_CONFIG.SYSTEM_ERROR_MESSAGES.merryChristmasEnd
+          systemErrorMessages?.catchRewardsEnd ||
+          APP_CONFIG.SYSTEM_ERROR_MESSAGES.catchRewardsEnd
         }
         onClose={() => closeApp()}
         retryButtonProps={{

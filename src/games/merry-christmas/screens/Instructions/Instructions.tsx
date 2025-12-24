@@ -8,7 +8,7 @@ import {
   useRegisterLoyaltyCustomer,
   useViewPage,
 } from "hooks";
-import { useRemainPlays } from "../../hooks";
+import { useGetCanPlay, useGetGameDetail } from "queries";
 import { SCREEN_KEYS } from "../../constants";
 import { useRecoilState } from "recoil";
 import { merryChristmasState } from "../../state";
@@ -146,41 +146,32 @@ export const Instructions: React.FC<InstructionsProps> = memo(() => {
   const [{ isGameLoading }, setMerryChristmas] =
     useRecoilState(merryChristmasState);
   useRegisterLoyaltyCustomer();
-  const { appSettings } = useAppConfig();
+  const { data: gameDetailData } = useGetGameDetail();
+  const { data: canPlayData, isLoading: canPlayLoading } = useGetCanPlay();
 
+  // Variables
+  const { collections = [] } = gameDetailData?.data?.metadata || {};
   const collectionItems: CollectionItem[] =
-    appSettings?.games?.catchRewards?.collectionItems ||
-    (COLLECTTIONS as CollectionItem[]);
-
-  // Hooks
-  const { remainPlays, isLoading: remainPlaysLoading } = useRemainPlays();
+    collections?.length > 0 ? collections : (COLLECTTIONS as CollectionItem[]);
+  const { remainingTurns = 0 } = canPlayData?.data || {};
 
   // Trackings
   useViewPage({
     pageType: PAGE_TYPE.INSTRUCTIONS,
-    pageCate: EVENT_CONFIG.MERRY_CHRISTMAS,
+    pageCate: EVENT_CONFIG.CATCH_REWARDS,
   });
 
   // Effects
   useEffect(() => {
-    // if (!remainPlaysLoading && !remainPlays) {
+    // if (!canPlayLoading && !remainingTurns) {
     //   setMerryChristmas((prev) => ({
     //     ...prev,
     //     currentScreen: SCREEN_KEYS.MAIN_MENU,
     //   }));
     // }
-  }, [remainPlays, remainPlaysLoading]);
+  }, [canPlayLoading, remainingTurns]);
 
   // Handlers
-  const onClickRedirectVoucherList = useCallback(() => {
-    navigate("/gift", {
-      newParams: {
-        tab: "redeemed",
-        voucherType: "voucher",
-      },
-    });
-  }, [navigate]);
-
   const onStart = useCallback(() => {
     setMerryChristmas((prev) => ({
       ...prev,
@@ -194,7 +185,12 @@ export const Instructions: React.FC<InstructionsProps> = memo(() => {
       <Wrapper
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
+        exit={{
+          opacity: 0,
+          transition: {
+            duration: 0.5,
+          },
+        }}
       >
         <InstructionsWrapper
           initial={{ opacity: 0 }}

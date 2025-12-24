@@ -169,6 +169,7 @@ const globalsSchema = z.object({
     merryChristmasEnd: z.string().optional(),
     requestPermission: z.string(),
     requestAcceptTerms: z.string().optional(),
+    catchRewardsEnd: z.string().optional(),
   }),
   metrics: z.object({
     voucherDetailBarWidth: z.number(),

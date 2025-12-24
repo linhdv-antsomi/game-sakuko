@@ -20,4 +20,6 @@ export const PAGE_TYPE = {
   LEADER_BOARD: "leader_board",
   ADD_TURN: "add_turn",
   INSTRUCTIONS: "instructions",
+  RESULT_SUCCESS: "result_success",
+  RESULT_FAILED: "result_failed",
 };

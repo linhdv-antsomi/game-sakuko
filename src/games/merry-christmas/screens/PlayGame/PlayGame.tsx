@@ -13,6 +13,7 @@ import countDownSound from "assets/sound-effects/countdown.mp3";
 import { CollectionItem } from "schemas";
 import { SCREEN_KEYS } from "../../constants";
 import { useRemainPlays } from "games/merry-christmas/hooks";
+import { useGetCanPlay, useGetGameDetail } from "queries";
 
 interface PlayGameProps {
   onGameOver: (scores: Scores, totalScore: number) => void;
@@ -64,7 +65,8 @@ export const PlayGame: React.FC<PlayGameProps> = memo(({ onGameOver }) => {
     volume: 1,
     html5: true,
   });
-  const { remainPlays } = useRemainPlays();
+  const { data: canPlayData } = useGetCanPlay();
+  const { data: gameDetailData } = useGetGameDetail();
 
   useViewPage({
     pageType: PAGE_TYPE.PLAY_GAME,
@@ -72,13 +74,15 @@ export const PlayGame: React.FC<PlayGameProps> = memo(({ onGameOver }) => {
   });
 
   // Get collectionItems from app settings
-  const { appSettings } = useAppConfig();
-  const collectionItems: CollectionItem[] =
-    appSettings?.games?.catchRewards?.collectionItems ||
-    (COLLECTTIONS as CollectionItem[]);
   const {
-    timeDelayShowResult = APP_CONFIG.GAMES.MERRY_CHRISTMAS.TIME_DELAY_SHOW_GIFT,
-  } = appSettings?.games?.catchRewards || {};
+    collections = [],
+    timeDelayShowResult = APP_CONFIG.GAMES.CATCH_REWARDS.TIME_DELAY_SHOW_GIFT,
+    minScoreToClaimReward = APP_CONFIG.GAMES.CATCH_REWARDS
+      .MIN_SCORE_TO_CLAIM_REWARD,
+  } = gameDetailData?.data?.metadata || {};
+  const collectionItems: CollectionItem[] =
+    collections?.length > 0 ? collections : (COLLECTTIONS as CollectionItem[]);
+  const { remainingTurns = 0 } = canPlayData?.data || {};
 
   const handleCountdownComplete = useCallback(() => {
     setShowCountdown(false);
@@ -102,7 +106,10 @@ export const PlayGame: React.FC<PlayGameProps> = memo(({ onGameOver }) => {
       setTimeout(() => {
         setMerryChristmasState((prev) => ({
           ...prev,
-          currentScreen: SCREEN_KEYS.RESULTS,
+          currentScreen:
+            totalScore >= minScoreToClaimReward
+              ? SCREEN_KEYS.RESULTS
+              : SCREEN_KEYS.RESULT_FAILED,
         }));
       }, timeDelayShowResult);
     },
@@ -152,7 +159,7 @@ export const PlayGame: React.FC<PlayGameProps> = memo(({ onGameOver }) => {
           scores={scores}
           collections={collectionItems || []}
           totalScore={totalScore}
-          remainPlays={remainPlays}
+          remainPlays={remainingTurns}
         />
       </ControlWrapper>
 

@@ -10,10 +10,14 @@ export const useAuthentication = () => {
   // Handlers
   const handleLogin = useCallback(async () => {
     const authRes = await login();
-    const { accessToken } = authRes?.data || {};
+    const { accessToken, user: { phone } } = authRes?.data || {};
 
     if (accessToken) {
       window.zma.setAccessToken(accessToken, true);
+    }
+
+    if (phone) {
+      window.zma.setPhoneNumber(phone, true);
     }
 
     setAuthentication(authRes?.data);
