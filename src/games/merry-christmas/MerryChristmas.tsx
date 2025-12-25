@@ -126,22 +126,16 @@ export const MerryChristmas: React.FC<MerryChristmasProps> = (props) => {
 
   const { mutateAsync: allocateVoucher } = usePlayGame({
     options: {
-      onSuccess({
-        code,
-        data: {
-          reward: {
-            metadata: { promotion_code },
-          },
-        },
-      }) {
+      onSuccess({ code, data }) {
         // If the code is not 200, it means that the voucher is out of stock
         // If the totalScore is greater than or equal to minScoreToClaimReward, it means that the voucher is out of stock
+        const _promotion_code = data?.reward?.metadata?.promotion_code || "";
         if (
           code !== 200 ||
           (totalScore &&
             totalScore >= minScoreToClaimReward &&
             code === 200 &&
-            !promotion_code)
+            !_promotion_code)
         ) {
           setTimeout(() => {
             setState((draft) => {

@@ -47,7 +47,7 @@ export const useRequestZaloPermissions = (
 
   // Hooks & State
   const queryClient = useQueryClient();
-  const [config, setConfig] = useLocalStorage(APP_CONFIG.GAME_ID, {
+  const [config, setConfig] = useLocalStorage(window?.zma?.GAME_ID || APP_CONFIG.GAME_ID, {
     isAcceptRule: false,
     isPhoneNumberAllowed: false,
     lastIdentifyDate: "",

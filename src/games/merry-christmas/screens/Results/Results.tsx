@@ -80,6 +80,8 @@ const Content = styled(motion.div)`
     font-weight: 600;
     font-size: 23px;
     color: #ed5691;
+    text-align: center;
+    line-height: 1.1;
   }
 
   .voucher-barcode-wrapper {
@@ -280,17 +282,10 @@ export const Results: React.FC<ResultsProps> = memo(({ onShare }) => {
       exit={{ opacity: 0 }}
     >
       <Content>
-        <motion.div
-          className="heading"
-          variants={mainVariants(1)}
-          initial="initial"
-          animate="animate"
-        >
-          Sakuko tặng bạn
-        </motion.div>
+        <motion.div className="heading">Sakuko tặng bạn</motion.div>
         <motion.div
           className="voucher"
-          variants={mainVariants(2)}
+          variants={mainVariants(1)}
           initial="initial"
           animate="animate"
         >
@@ -324,7 +319,7 @@ export const Results: React.FC<ResultsProps> = memo(({ onShare }) => {
         </motion.div>
 
         <BtnPlay
-          variants={mainVariants(3)}
+          variants={mainVariants(2)}
           initial="initial"
           animate="animate"
           whileTap={{ filter: "brightness(0.7)", y: 2 }}
@@ -334,7 +329,7 @@ export const Results: React.FC<ResultsProps> = memo(({ onShare }) => {
         </BtnPlay>
         <div className="flex gap-2" style={{ marginTop: 13 }}>
           <BtnAddTurn
-            variants={mainVariants(4)}
+            variants={mainVariants(3)}
             initial="initial"
             animate="animate"
             whileTap={{ filter: "brightness(0.7)", y: 2 }}
@@ -344,7 +339,7 @@ export const Results: React.FC<ResultsProps> = memo(({ onShare }) => {
             <div>Thêm lượt</div>
           </BtnAddTurn>
           <BtnBXH
-            variants={mainVariants(4)}
+            variants={mainVariants(3)}
             initial="initial"
             animate="animate"
             whileTap={{ filter: "brightness(0.7)", y: 2 }}
@@ -355,7 +350,7 @@ export const Results: React.FC<ResultsProps> = memo(({ onShare }) => {
           </BtnBXH>
         </div>
         <BtnGift
-          variants={mainVariants(5)}
+          variants={mainVariants(4)}
           initial="initial"
           animate="animate"
           whileTap={{ filter: "brightness(0.7)", y: 2 }}

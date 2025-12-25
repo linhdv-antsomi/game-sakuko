@@ -189,7 +189,7 @@ export const MainMenu: React.FC<MainMenuProps> = memo(({ onShare }) => {
     limitRequestVisible: false,
   });
   const [merryChristmasConfig, setMerryChristmasConfig] = useLocalStorage(
-    APP_CONFIG.GAME_ID,
+    window?.zma?.GAME_ID || APP_CONFIG.GAME_ID,
     {
       isAcceptRule: false,
       isPhoneNumberAllowed: false,

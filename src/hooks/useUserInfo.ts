@@ -49,9 +49,10 @@ export const useUserInfo = (props?: UserInfoProps) => {
   } = useGetLoyaltyCustomerDetail({
     args: {
       customerId: phoneNumber,
+      phoneNumber,
     },
     options: {
-      enabled: !!phoneNumber,
+      enabled: !!phoneNumber && !window?.zma?.PREVIEW_MODE,
     },
   });
 

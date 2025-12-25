@@ -170,7 +170,7 @@ export const LeaderBoard: React.FC<LeaderBoardProps> = memo(({ onShare }) => {
     },
   });
   const [merryChristmasConfig, setMerryChristmasConfig] = useLocalStorage(
-    APP_CONFIG.GAME_ID,
+    window?.zma?.GAME_ID || APP_CONFIG.GAME_ID,
     {
       isAcceptRule: false,
       isPhoneNumberAllowed: false,

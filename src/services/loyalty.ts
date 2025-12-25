@@ -39,6 +39,7 @@ export type UpdateLoyaltyCustomerArgs = {
 
 export type GetLoyaltyCustomerDetailArgs = {
   customerId: string;
+  phoneNumber: string;
 };
 
 export type GetTransactionListArgs = {

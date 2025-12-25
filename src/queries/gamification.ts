@@ -17,15 +17,17 @@ import {
 } from "schemas";
 import { CommonResponse } from "types";
 
+const GAME_ID = window?.zma?.GAME_ID || APP_CONFIG.GAME_ID;
+
 export const useGetCanShare = () => {
   return useQuery<
     CommonResponse<GameCanShare>,
     Error,
     CommonResponse<GameCanShare>
   >({
-    queryKey: [QUERY_KEY.GET_CAN_SHARE_GAME, APP_CONFIG.GAME_ID],
+    queryKey: [QUERY_KEY.GET_CAN_SHARE_GAME, GAME_ID],
     queryFn: () =>
-      window?.zma?.gamification?.getCanShare({ gameId: APP_CONFIG.GAME_ID }),
+      window?.zma?.gamification?.getCanShare({ gameId: GAME_ID }),
   });
 };
 
@@ -35,9 +37,9 @@ export const useGetGameDetail = () => {
     Error,
     CommonResponse<GameDetail>
   >({
-    queryKey: [QUERY_KEY.GET_GAME_DETAIL, APP_CONFIG.GAME_ID],
+    queryKey: [QUERY_KEY.GET_GAME_DETAIL, GAME_ID],
     queryFn: () =>
-      window?.zma?.gamification?.getGameDetail({ gameId: APP_CONFIG.GAME_ID }),
+      window?.zma?.gamification?.getGameDetail({ gameId: GAME_ID }),
   });
 };
 
@@ -50,9 +52,9 @@ export const useGetLeaderBoard = (props?: GetLeaderBoardProps) => {
     Error,
     CommonResponse<GameLeaderboard>
   >({
-    queryKey: [QUERY_KEY.GET_GAME_LEADERBOARD, APP_CONFIG.GAME_ID],
+    queryKey: [QUERY_KEY.GET_GAME_LEADERBOARD, GAME_ID],
     queryFn: () =>
-      window?.zma?.gamification?.getLeaderboard({ gameId: APP_CONFIG.GAME_ID }),
+      window?.zma?.gamification?.getLeaderboard({ gameId: GAME_ID }),
     ...(props?.options || {}),
   });
 };
@@ -63,9 +65,9 @@ export const useGetUserStats = () => {
     Error,
     CommonResponse<GameUserStats>
   >({
-    queryKey: [QUERY_KEY.GET_GAME_USER_STATS, APP_CONFIG.GAME_ID],
+    queryKey: [QUERY_KEY.GET_GAME_USER_STATS, GAME_ID],
     queryFn: () =>
-      window?.zma?.gamification?.getUserStats({ gameId: APP_CONFIG.GAME_ID }),
+      window?.zma?.gamification?.getUserStats({ gameId: GAME_ID }),
   });
 };
 
@@ -75,9 +77,9 @@ export const useGetCanPlay = () => {
     Error,
     CommonResponse<GameCanPlay>
   >({
-    queryKey: [QUERY_KEY.GET_CAN_PLAY_GAME, APP_CONFIG.GAME_ID],
+    queryKey: [QUERY_KEY.GET_CAN_PLAY_GAME, GAME_ID],
     queryFn: () =>
-      window?.zma?.gamification?.getCanPlay({ gameId: APP_CONFIG.GAME_ID }),
+      window?.zma?.gamification?.getCanPlay({ gameId: GAME_ID }),
   });
 };
 interface ShareGameArgs {}
@@ -95,17 +97,17 @@ export const useShareGame = (props: ShareGameProps) => {
   return useMutation({
     mutationFn: (args: ShareGameArgs = {}) =>
       window?.zma?.gamification?.shareGame({
-        gameId: APP_CONFIG.GAME_ID,
+        gameId: GAME_ID,
         ...args,
       }),
     onSettled: (data, error) => {
       if (!error) {
         queryClient.invalidateQueries({
-          queryKey: [QUERY_KEY.GET_CAN_PLAY_GAME, APP_CONFIG.GAME_ID],
+          queryKey: [QUERY_KEY.GET_CAN_PLAY_GAME, GAME_ID],
           exact: false,
         });
         queryClient.invalidateQueries({
-          queryKey: [QUERY_KEY.GET_CAN_SHARE_GAME, APP_CONFIG.GAME_ID],
+          queryKey: [QUERY_KEY.GET_CAN_SHARE_GAME, GAME_ID],
           exact: false,
         });
       }
@@ -130,7 +132,7 @@ export const usePlayGame = (props: PlayGameProps) => {
   return useMutation({
     mutationFn: (args: PlayGameArgs) =>
       window?.zma?.gamification?.playGame({
-        gameId: APP_CONFIG.GAME_ID,
+        gameId: GAME_ID,
         body: args.bodyData,
       }),
 
@@ -141,7 +143,7 @@ export const usePlayGame = (props: PlayGameProps) => {
       });
 
       queryClient.invalidateQueries({
-        queryKey: [QUERY_KEY.GET_CAN_PLAY_GAME, APP_CONFIG.GAME_ID],
+        queryKey: [QUERY_KEY.GET_CAN_PLAY_GAME, GAME_ID],
         exact: false,
       });
     },
@@ -153,10 +155,10 @@ export const useCheckin = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
-      mutationFn: () => window?.zma?.gamification?.checkin({ gameId: APP_CONFIG.GAME_ID }),
+      mutationFn: () => window?.zma?.gamification?.checkin({ gameId: GAME_ID }),
       onSettled() {
         queryClient.invalidateQueries({
-          queryKey: [QUERY_KEY.GET_CAN_PLAY_GAME, APP_CONFIG.GAME_ID],
+          queryKey: [QUERY_KEY.GET_CAN_PLAY_GAME, GAME_ID],
           exact: false,
         });
       },

@@ -107,7 +107,7 @@ export const useCreateLoyaltyCustomer = ({
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: loyaltyServices.createLoyaltyCustomer,
+    mutationFn: typeof window?.zma?.createLoyaltyCustomer === "function" ? window?.zma?.createLoyaltyCustomer : loyaltyServices.createLoyaltyCustomer,
     onSettled(data, error, variables, context) {
       queryClient.invalidateQueries({
         queryKey: [
