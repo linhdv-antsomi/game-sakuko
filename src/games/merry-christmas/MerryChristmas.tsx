@@ -118,7 +118,7 @@ export const MerryChristmas: React.FC<MerryChristmasProps> = (props) => {
     shareDescription,
     shareThumbnail,
     sharePath,
-    minScoreToClaimReward,
+    minScoreToClaimReward = APP_CONFIG.GAMES.CATCH_REWARDS.MIN_SCORE_TO_CLAIM_REWARD,
   } = gameDetail?.data?.metadata || {};
   const { systemErrorMessages } = appSettings?.globals || {};
   const { currentScreen, isAllocatingCode, totalScore } = christmasState;
