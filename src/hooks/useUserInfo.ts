@@ -39,6 +39,7 @@ export const useUserInfo = (props?: UserInfoProps) => {
   const { tierList = Object.values(TIER) } =
     appSettings?.globals?.loyalty || {};
 
+    console.log("useUserInfo ingame ", { phoneNumber });
   // Queries
   const {
     data: loyaltyCustomerDetailData,

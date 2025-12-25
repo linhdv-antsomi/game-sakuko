@@ -87,6 +87,7 @@ const ItemsWrapper = styled.div`
   width: 100%;
   margin-top: 12px;
   margin-bottom: 20px;
+  overflow: hidden;
 `;
 
 const Item = styled.div<{ $type: CollectionItem["type"] }>`
@@ -109,7 +110,7 @@ const Item = styled.div<{ $type: CollectionItem["type"] }>`
   align-items: center;
 
   .img {
-    max-height: 70%;
+    max-height: 60%;
   }
   .label {
     max-height: 27%;
@@ -142,7 +143,6 @@ const BtnPlay = styled(ButtonBox)`
 `;
 
 export const Instructions: React.FC<InstructionsProps> = memo(() => {
-  const navigate = useNavigateWithSearch();
   const [{ isGameLoading }, setMerryChristmas] =
     useRecoilState(merryChristmasState);
   useRegisterLoyaltyCustomer();
@@ -241,7 +241,6 @@ export const Instructions: React.FC<InstructionsProps> = memo(() => {
               repeatType: "mirror",
               ease: "easeInOut",
             }}
-            exit={{ opacity: 0 }}
             whileTap={{ filter: "brightness(0.7)", y: 2, scale: 1 }}
             onClick={onStart}
           >

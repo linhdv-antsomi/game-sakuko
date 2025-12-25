@@ -9,5 +9,5 @@ export const bgMusic = new Howl({
   volume: 0.4,
   loop: true,
   preload: true,
-  html5: true,
+  html5: false,
 });

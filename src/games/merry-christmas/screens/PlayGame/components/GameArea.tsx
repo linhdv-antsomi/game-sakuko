@@ -76,9 +76,6 @@ const GameAreaWrapper = styled.div`
   &.stunned {
     filter: grayscale(0.6);
   }
-  #box.stunned {
-    animation: shake 0.4s infinite;
-  }
 `;
 
 export const GameArea: React.FC<GameAreaProps> = React.memo(

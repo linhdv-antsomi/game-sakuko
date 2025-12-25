@@ -63,14 +63,14 @@ export const PlayGame: React.FC<PlayGameProps> = memo(({ onGameOver }) => {
   const [state, setMerryChristmasState] = useRecoilState(merryChristmasState);
   const { play: playCountDown } = useSoundEffect(countDownSound, {
     volume: 1,
-    html5: true,
+    html5: false,
   });
   const { data: canPlayData } = useGetCanPlay();
   const { data: gameDetailData } = useGetGameDetail();
 
   useViewPage({
     pageType: PAGE_TYPE.PLAY_GAME,
-    pageCate: EVENT_CONFIG.MERRY_CHRISTMAS,
+    pageCate: EVENT_CONFIG.CATCH_REWARDS,
   });
 
   // Get collectionItems from app settings

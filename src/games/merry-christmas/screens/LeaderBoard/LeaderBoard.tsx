@@ -87,6 +87,8 @@ const Item = styled.div<{ $player: any }>`
     aspect-ratio: 1/1;
     width: 13%;
     margin-left: 16px;
+    border-radius: 100%;
+    overflow: hidden;
   }
   .name {
     color: #243771;
@@ -235,7 +237,6 @@ export const LeaderBoard: React.FC<LeaderBoardProps> = memo(({ onShare }) => {
 
   // Effects
   useEffect(() => {
-    console.log("🚀 ~ useEffect ~ isRequestedZalo:", userInfo?.phoneNumber);
     if (!userInfo?.phoneNumber && !window?.zma?.PREVIEW_MODE) {
       setMerryChristmasConfig((prev) => ({
         ...prev,
@@ -266,7 +267,7 @@ export const LeaderBoard: React.FC<LeaderBoardProps> = memo(({ onShare }) => {
     const arrRankData = leaderBoardData?.data?.leaderboard || [];
     const arrRankSorted = arrRankData
       .sort((a, b) => a.rank - b.rank)
-      .slice(0, 3);
+      .slice(0, 5);
 
     // if (Array.isArray(arrRankData) && userInfo?.id) {
     //   myRank = arrRankData.find((item) => item.userId === userInfo?.id);

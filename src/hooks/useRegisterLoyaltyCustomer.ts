@@ -11,12 +11,13 @@ import { callCdpEvent, dayjs, formatEventDateTime } from "utils";
 // Queries
 // import { useCreateLoyaltyCustomer } from "queries";
 import {DATE_TIME_FORMAT} from "constant";
+import { useCreateLoyaltyCustomer } from "queries";
 
 export const useRegisterLoyaltyCustomer = () => {
   const { userInfo, isRegistered } = useUserInfo();
   // Queries
-  // const { mutateAsync: createLoyaltyCustomer } = useCreateLoyaltyCustomer({});
-  const createLoyaltyCustomer = () => {}
+  const { mutateAsync: createLoyaltyCustomer } = useCreateLoyaltyCustomer({});
+  // const createLoyaltyCustomer = () => {}
 
   // Handle call cdp event identify and register customer loyalty
   useDeepCompareEffect(() => {

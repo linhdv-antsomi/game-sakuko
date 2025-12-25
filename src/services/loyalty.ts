@@ -26,7 +26,7 @@ import {
 import { APP_CONFIG } from "constant";
 
 const { CLIENT_PREFIX } = APP_CONFIG;
-const LOYALTY_ENDPOINT = `${CLIENT_PREFIX}/loyalty`;
+const LOYALTY_ENDPOINT = window?.zma?.getLoyaltyEndpoint() || `${CLIENT_PREFIX}/loyalty`;
 
 export type CreateLoyaltyArgs = {
   data: CreateLoyaltyCustomer;

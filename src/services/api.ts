@@ -7,7 +7,7 @@ const { API_ZMA_URL, SANDBOX_API_ZMA_URL } = APP_CONFIG;
 
 const searchPrams = new URLSearchParams(window.location.search);
 const env = searchPrams.get("env");
-const BASE_URL = window?.zma?.getApiDomain() || SANDBOX_API_ZMA_URL;
+const BASE_URL = window?.zma?.getApiDomain() || API_ZMA_URL;
 // const BASE_URL = `${
 //   ["testing", "development"].includes(`${env}`.toLowerCase()) ? SANDBOX_API_ZMA_URL : API_ZMA_URL
 // }`;
@@ -25,7 +25,7 @@ export const fetchInstance = async (
       ...restOfInit,
       headers: {
         ...(!skipAuth && {
-          Authorization: `Bearer ${accessToken || APP_CONFIG.DEV_ACCESS_TOKEN || 'af71bb32-96b7-4dec-86ef-5a969e494ecb'}`
+          Authorization: `Bearer ${accessToken || APP_CONFIG.DEV_ACCESS_TOKEN}`
         }),
         ...restOfInit?.headers,
       },

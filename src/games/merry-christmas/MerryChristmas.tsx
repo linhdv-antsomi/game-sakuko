@@ -113,10 +113,15 @@ export const MerryChristmas: React.FC<MerryChristmasProps> = (props) => {
   });
 
   // Variables
-  const { shareTitle, shareDescription, shareThumbnail, sharePath } =
-    gameDetail?.data?.metadata || {};
+  const {
+    shareTitle,
+    shareDescription,
+    shareThumbnail,
+    sharePath,
+    minScoreToClaimReward,
+  } = gameDetail?.data?.metadata || {};
   const { systemErrorMessages } = appSettings?.globals || {};
-  const { currentScreen, isAllocatingCode } = christmasState;
+  const { currentScreen, isAllocatingCode, totalScore } = christmasState;
   const { isOutOfVoucher } = state;
 
   const { mutateAsync: allocateVoucher } = usePlayGame({
@@ -130,7 +135,14 @@ export const MerryChristmas: React.FC<MerryChristmasProps> = (props) => {
         },
       }) {
         // If the code is not 200, it means that the voucher is out of stock
-        if (code !== 200 || (code === 200 && !promotion_code)) {
+        // If the totalScore is greater than or equal to minScoreToClaimReward, it means that the voucher is out of stock
+        if (
+          code !== 200 ||
+          (totalScore &&
+            totalScore >= minScoreToClaimReward &&
+            code === 200 &&
+            !promotion_code)
+        ) {
           setTimeout(() => {
             setState((draft) => {
               draft.isOutOfVoucher = true;
@@ -294,7 +306,6 @@ export const MerryChristmas: React.FC<MerryChristmasProps> = (props) => {
 
   // Get the current screen component
   const CurrentScreenComponent = useMemo(() => {
-    console.log("currentScreen", currentScreen);
     return SCREENS[currentScreen] || SCREENS["main-menu"];
   }, [currentScreen]);
 

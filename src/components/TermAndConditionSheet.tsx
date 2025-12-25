@@ -19,13 +19,14 @@ const StyledTermAndConditionSheet = styled(Sheet)`
 
   .zaui-sheet-content-header {
     padding: 10px 0px;
-    height: auto;
+    height: fit-content;
     width: 100%;
     .zaui-sheet-content-title {
       color: '#040918';
       font-weight: 700;
-      font-size: 18px !important;
-      padding: 0 46px;
+      font-size: 16px !important;
+      padding: 0 20px;
+      line-height: 1.5;
     }
   }
 
